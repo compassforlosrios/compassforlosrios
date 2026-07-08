@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compass — Los Rios career & education navigator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Naskh+Arabic:wght@500;700&family=Noto+Sans+Arabic:wght@400;600&display=swap');
+
+/* ============================================================
+   Los Rios district design language (tokens extracted from
+   losriosmin.css / arcmin / sccmin / crcmin / flcmin):
+   navy #252D65, action blue #215DD6, sky #9CCEEB, gold #E5BF45,
+   grays #F7F7F9 / #C8CBCE / #6E7177 / #374049 / #292E38,
+   Source Sans Pro body + Libre Baskerville headings, flat
+   surfaces, 1rem radii, white header with 8px navy rule.
+   College brands: ARC #BA0C2F · SCC #8A0028 · CRC #F26E21 · FLC #6C2991
+   ============================================================ */
+:root{
+  --bg-0:#F7F7F9;
+  --bg-1:#FFFFFF;
+  --panel:#FFFFFF;
+  --panel-solid:#EEEEF2;
+  --border:#D9DADF;
+  --border-strong:#C8CBCE;
+  --coral:#252D65;
+  --coral-bright:#215DD6;
+  --teal:#215DD6;
+  --gold:#E5BF45;
+  --gold-text:#8A6D3B;
+  --sky:#9CCEEB;
+  --violet:#252D65;
+  --text:#292E38;
+  --text-dim:#374049;
+  --text-faint:#6E7177;
+  --paper:#FFFFFF;
+  --paper-text:#292E38;
+  --ok:#3C763D;
+  --warn:#8A6D3B;
+  --danger:#A94442;
+  --arc:#BA0C2F;--scc:#8A0028;--crc:#F26E21;--flc:#6C2991;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg-0);color:var(--text);font-family:'Source Sans Pro','Arial',sans-serif;}
+body{
+  background:var(--bg-0);
+  min-height:100vh;
+}
+[dir="rtl"] body{font-family:'Noto Sans Arabic','Source Sans Pro',sans-serif;}
+[dir="rtl"] .disp{font-family:'Noto Naskh Arabic','Libre Baskerville',serif;}
+
+#app{min-height:100vh;position:relative;}
+.disp{font-family:'Libre Baskerville','Times New Roman',serif;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+header{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:14px 28px;border-bottom:8px solid var(--coral);
+  background:#FFFFFF;
+}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand svg{width:36px;height:36px;flex:none;}
+.brand h1{font-family:'Libre Baskerville','Times New Roman',serif;font-size:19px;margin:0;font-weight:700;color:var(--coral);}
+.brand p{margin:0;font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;}
+
+.top-controls{display:flex;gap:10px;align-items:center;}
+select#langSel{
+  background:var(--panel-solid);border:1px solid var(--border-strong);color:var(--text);
+  font-size:12.5px;font-weight:600;padding:9px 14px;border-radius:var(--r-md);cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+}
+
+nav{display:flex;gap:3px;flex-wrap:wrap;}
+nav button{
+  font-size:13px;font-weight:600;background:transparent;border:1px solid transparent;
+  color:var(--coral);padding:9px 15px;border-radius:var(--r-md);cursor:pointer;transition:.15s;white-space:nowrap;
+}
+nav button:hover{color:var(--coral);background:#EDF1FB;}
+nav button.active{color:#FFFFFF;background:var(--coral);font-weight:700;}
+nav button:disabled{opacity:.3;cursor:not-allowed;}
+
+main{position:relative;max-width:960px;margin:0 auto;padding:36px 24px 110px;}
+
+.disclaimer{
+  display:flex;gap:10px;align-items:flex-start;background:#FCF8E3;
+  border:1px solid #E5D99E;border-inline-start:4px solid var(--gold);padding:13px 16px;border-radius:var(--r-sm);
+  font-size:12px;color:#8A6D3B;line-height:1.55;margin-bottom:26px;
+}
+.disclaimer b{color:var(--gold-text);}
+
+.ccn-alert{
+  background:#EDF1FB;
+  border:1px solid var(--sky);border-inline-start:4px solid var(--coral-bright);border-radius:var(--r-md);padding:18px 20px;margin-bottom:26px;
+}
+.ccn-alert .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;
+  background:var(--coral);color:#FFFFFF;padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+.ccn-alert p{margin:0;font-size:13px;line-height:1.6;color:var(--text-dim);}
+.ccn-alert b{color:var(--text);}
+
+.eyebrow{font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--coral-bright);margin-bottom:10px;font-weight:700;}
+h2.title{font-family:'Libre Baskerville','Times New Roman',serif;font-size:clamp(25px,4vw,36px);font-weight:700;line-height:1.22;margin:0 0 16px;color:var(--coral);}
+[dir="rtl"] h2.title{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;background:none;-webkit-text-fill-color:var(--text);color:var(--text);}
+.lede{font-size:15px;color:var(--text-dim);max-width:600px;line-height:1.65;margin-bottom:30px;}
+
+.btn-primary{
+  font-weight:700;font-size:14.5px;color:#FFFFFF;border:none;padding:14px 28px;border-radius:var(--r-md);cursor:pointer;
+  background:var(--coral-bright);box-shadow:none;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn-primary:hover{background:#1A4CB0;}
+.btn-ghost{
+  font-weight:700;font-size:13px;color:var(--coral);background:var(--panel);border:1px solid var(--border-strong);
+  padding:10px 18px;border-radius:var(--r-md);cursor:pointer;
+}
+.btn-ghost:hover{background:#E2E9F0;}
+
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px;}
+
+/* dashboard */
+.dash-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-md);padding:20px 22px;}
+.stat-card .num{font-family:'Libre Baskerville','Times New Roman',serif;font-size:32px;font-weight:700;margin:2px 0 4px;color:var(--coral);}
+.stat-card .lbl{font-size:11.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;}
+.progress-bar{height:8px;border-radius:99px;background:#E2E9F0;overflow:hidden;margin-top:10px;}
+.progress-bar .fill{height:100%;border-radius:99px;background:var(--coral-bright);}
+
+.dim-preview{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border);margin-top:8px;}
+.dim-preview div{background:var(--panel-solid);padding:14px 12px;font-size:11px;color:var(--text-faint);}
+.dim-preview div b{display:block;color:var(--text);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px;font-family:'IBM Plex Mono',monospace;}
+
+/* test */
+.test-wrap{max-width:660px;}
+.back-link{background:none;border:none;color:var(--text-faint);font-size:12.5px;cursor:pointer;margin-bottom:16px;padding:0;}
+.back-link:hover{color:var(--coral-bright);}
+.progress-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);margin-bottom:8px;}
+.progress-track{height:4px;background:#E2E9F0;border-radius:99px;margin-bottom:32px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--coral-bright);border-radius:99px;transition:width .25s;}
+
+.question-card{background:#FFFFFF;border:1px solid var(--border-strong);box-shadow:0 2px 12px rgba(20,41,61,0.07);
+  padding:38px 34px;border-radius:var(--r-lg);}
+.q-dim-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--bg-0);text-transform:uppercase;
+  letter-spacing:0.08em;margin-bottom:16px;background:var(--coral);padding:4px 11px;border-radius:var(--r-sm);font-weight:700;}
+.q-text{font-family:'Libre Baskerville','Times New Roman',serif;font-size:23px;line-height:1.42;margin:0 0 30px;font-weight:600;}
+[dir="rtl"] .q-text{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;font-size:21px;}
+.scale-row{display:flex;gap:8px;flex-wrap:wrap;}
+.scale-btn{
+  flex:1;min-width:90px;padding:15px 8px;background:#F6F9FC;border:1px solid var(--border);color:var(--text-dim);
+  font-size:11px;text-align:center;cursor:pointer;border-radius:var(--r-sm);transition:.13s;line-height:1.3;
+}
+.scale-btn:hover{border-color:var(--coral-bright);color:var(--text);background:#EDF1FB;transform:translateY(-2px);}
+.scale-num{display:block;font-family:'IBM Plex Mono',monospace;font-size:17px;margin-bottom:5px;font-weight:700;color:var(--text);}
+.goal-row{display:flex;flex-direction:column;gap:10px;}
+.goal-btn{background:#F6F9FC;border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;cursor:pointer;transition:.13s;}
+.goal-btn:hover{border-color:var(--coral-bright);background:#EDF1FB;}
+.goal-btn b{display:block;font-size:14.5px;color:var(--coral);margin-bottom:3px;}
+.goal-btn span{font-size:12.5px;color:var(--text-dim);line-height:1.45;}
+.rec-path{background:#EDF1FB;border-inline-start:3px solid var(--coral-bright);padding:9px 13px;border-radius:var(--r-sm);font-size:12.5px;line-height:1.55;margin:10px 0;color:var(--text-dim);}
+.rec-path b{color:var(--coral);}
+.rec-path .rec-units{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--coral-bright);}
+.rec-path a{color:var(--coral-bright);font-weight:700;cursor:pointer;}
+.results-share{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 22px;}
+.goal-chip{display:inline-block;background:var(--coral);color:#FFF;font-size:11px;font-weight:700;padding:4px 12px;border-radius:var(--r-md);margin-inline-start:8px;vertical-align:middle;}
+
+/* results */
+.results-header{display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap;margin-bottom:40px;}
+.profile-summary h3{font-family:'Libre Baskerville','Times New Roman',serif;font-size:24px;margin:0 0 12px;}
+[dir="rtl"] .profile-summary h3{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;}
+.profile-summary p{color:var(--text-dim);font-size:14px;line-height:1.6;}
+.traits-list{list-style:none;padding:0;margin:16px 0 0;font-size:12.5px;}
+.traits-list li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.traits-list b{color:var(--text);font-weight:600;}
+.traits-list span{color:var(--teal);font-family:'IBM Plex Mono',monospace;font-weight:600;}
+
+h3.section-h{font-family:'Libre Baskerville','Times New Roman',serif;font-size:21px;margin:0 0 6px;}
+[dir="rtl"] h3.section-h{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;}
+.section-sub{font-size:13px;color:var(--text-faint);margin-bottom:20px;line-height:1.5;}
+
+.career-card{background:var(--paper);color:var(--paper-text);border-radius:var(--r-md);padding:22px 24px;margin-bottom:14px;border:1px solid var(--border);
+  border-inline-start:4px solid var(--coral);}
+.career-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:8px;}
+.career-top h4{font-family:'Libre Baskerville','Times New Roman',serif;font-size:18px;margin:0;}
+[dir="rtl"] .career-top h4{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;}
+.match-pct{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--coral);background:#EDF1FB;padding:5px 11px;border-radius:999px;white-space:nowrap;font-weight:700;}
+.career-card p.desc{font-size:13.5px;line-height:1.55;color:#3B4356;margin:0 0 10px;}
+.career-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#5B6478;font-family:'IBM Plex Mono',monospace;}
+.badge-college{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-weight:700;}
+.college-link{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;font-weight:800;cursor:pointer;}
+.college-link:hover{text-decoration-style:solid;}
+#appToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);z-index:999;
+  background:var(--paper);color:var(--paper-text);font-size:13px;font-weight:600;padding:12px 20px;border-radius:999px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.4);opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:88vw;text-align:center;}
+#appToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.badge-verified{background:rgba(46,133,64,0.14);color:#0E7A55;}
+.badge-general{background:rgba(154,163,199,0.18);color:#4A5270;}
+.ai-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+
+/* education */
+.major-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.major-card{background:var(--panel);border:1px solid var(--border);padding:20px 22px;border-radius:var(--r-md);cursor:pointer;transition:.15s;}
+.major-card:hover{border-color:var(--coral);}
+.major-card h5{font-family:'Libre Baskerville','Times New Roman',serif;font-size:16.5px;margin:0 0 8px;}
+[dir="rtl"] .major-card h5{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;}
+.chip{display:inline-block;font-size:10.5px;padding:4px 10px;border-radius:999px;margin:2px 5px 2px 0;font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.chip.verified{background:rgba(46,133,64,0.13);color:var(--ok);}
+.chip.general{background:rgba(154,163,199,0.15);color:var(--text-dim);}
+.course-list{margin-top:14px;font-size:12.5px;color:var(--text-dim);line-height:2;}
+.course-list .code{color:var(--teal);font-family:'IBM Plex Mono',monospace;font-weight:700;margin-inline-end:6px;}
+.checkbox-row{display:flex;align-items:center;gap:9px;padding:5px 0;}
+.cred-details{border:1px solid var(--border);border-radius:8px;margin:6px 0;padding:0 12px;background:rgba(154,163,199,0.05);}
+.cred-details summary{cursor:pointer;padding:9px 0;font-size:13px;font-weight:600;list-style-position:inside;}
+.cred-details summary .cred-title{margin-inline-end:4px;}
+.cred-details[open]{padding-bottom:10px;}
+.edu-college-block{margin-top:6px;}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;}
+.checkbox-row.done label{color:var(--ok);text-decoration:line-through;opacity:0.7;}
+.college-tag{font-size:11px;margin-top:10px;padding:6px 10px;border-radius:var(--r-sm);background:#EDF1FB;color:var(--coral);display:inline-block;font-weight:600;}
+.verify-note{font-size:11.5px;color:var(--text-faint);margin-top:10px;font-style:italic;line-height:1.5;}
+
+.careers-for-major{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;}
+.careers-for-major .chip{background:#EDF1FB;color:var(--coral-bright);}
+
+.catalog-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
+.catalog-search{flex:1;min-width:200px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);
+  padding:11px 15px;border-radius:var(--r-md);font-size:13.5px;}
+.college-chip{background:var(--panel);border:1px solid var(--border-strong);color:var(--text-dim);font-size:12px;font-weight:600;
+  padding:8px 14px;border-radius:var(--r-md);cursor:pointer;white-space:nowrap;}
+.college-chip.active{background:var(--coral);color:#FFFFFF;border-color:var(--coral);}
+.catalog-count{font-size:12px;color:var(--text-faint);margin-bottom:14px;}
+.catalog-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(230px,1fr));gap:10px;}
+.catalog-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;}
+.catalog-card h6{font-family:'Libre Baskerville','Times New Roman',serif;font-size:14.5px;margin:0 0 8px;font-weight:600;}
+[dir="rtl"] .catalog-card h6{font-family:'Noto Naskh Arabic','Libre Baskerville','Times New Roman',serif;}
+.catalog-card .row{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--text-faint);}
+.catalog-card .colleges{display:flex;gap:3px;flex-wrap:wrap;}
+.catalog-card .college-dot{width:22px;height:17px;border-radius:4px;font-size:8.5px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;background:var(--panel-solid);color:var(--text-dim);border:1px solid var(--border);text-decoration:none;transition:.12s;}
+.catalog-card a.college-dot:hover{background:var(--coral);color:#FFFFFF;border-color:var(--coral);}
+.college-dot.col-ARC{color:var(--arc);border-color:var(--arc);}
+.college-dot.col-SCC{color:var(--scc);border-color:var(--scc);}
+.college-dot.col-CRC{color:var(--crc);border-color:var(--crc);}
+.college-dot.col-FLC{color:var(--flc);border-color:var(--flc);}
+.catalog-card a.college-dot.col-ARC:hover{background:var(--arc);border-color:var(--arc);color:#FFF;}
+.catalog-card a.college-dot.col-SCC:hover{background:var(--scc);border-color:var(--scc);color:#FFF;}
+.catalog-card a.college-dot.col-CRC:hover{background:var(--crc);border-color:var(--crc);color:#FFF;}
+.catalog-card a.college-dot.col-FLC:hover{background:var(--flc);border-color:var(--flc);color:#FFF;}
+.edu-college-block{border-inline-start:3px solid var(--border-strong);padding-inline-start:12px;}
+.edu-college-block.col-ARC{border-color:var(--arc);}
+.edu-college-block.col-SCC{border-color:var(--scc);}
+.edu-college-block.col-CRC{border-color:var(--crc);}
+.edu-college-block.col-FLC{border-color:var(--flc);}
+.catalog-card .ai-pill{font-family:'IBM Plex Mono',monospace;font-weight:700;padding:2px 7px;border-radius:999px;}
+.degree-chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;
+  background:#EDF1FB;color:var(--coral);margin:6px 4px 0 0;}
+.degree-chip.na{background:rgba(154,163,199,0.14);color:var(--text-faint);font-style:italic;font-weight:500;}
+.degree-approx-note{font-size:9.5px;color:var(--text-faint);font-style:italic;margin-top:4px;display:block;}
+.ai-methodology{font-size:11.5px;color:var(--text-faint);line-height:1.6;margin:14px 0 22px;font-style:italic;}
+
+.key-dates{display:flex;flex-direction:column;gap:10px;margin-top:24px;}
+
+.calendar-search-row{display:flex;gap:10px;margin:18px 0 22px;flex-wrap:wrap;}
+.calendar-search-row input{flex:1;min-width:220px;background:var(--panel);border:1px solid var(--border-strong);color:var(--text);
+  padding:11px 15px;border-radius:var(--r-md);font-size:13.5px;}
+.calendar-match-card{background:var(--paper);color:var(--paper-text);border-radius:var(--r-md);padding:18px 20px;margin-bottom:20px;border-inline-start:4px solid var(--gold);}
+.calendar-match-card h5{font-family:'Libre Baskerville','Times New Roman',serif;font-size:17px;margin:0 0 8px;}
+.calendar-match-card .win-row{font-size:12.5px;color:#3B4356;margin-bottom:4px;}
+.calendar-match-card .win-row b{color:#1C2340;}
+.calendar-match-card .note{font-size:11.5px;color:#5B6478;font-style:italic;margin-top:8px;}
+.calendar-grid-12{display:grid;grid-template-columns:repeat(auto-fill, minmax(190px,1fr));gap:12px;}
+.month-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 12px 14px;}
+.month-card h6{font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-align:center;margin:0 0 8px;color:var(--text-dim);letter-spacing:0.06em;text-transform:uppercase;}
+.month-days{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.month-days .day-cell{aspect-ratio:1;border-radius:3px;font-size:8px;display:flex;align-items:center;justify-content:center;color:var(--text-faint);background:#F3F7FA;position:relative;}
+.month-days .day-cell.active{color:#FFFFFF;font-weight:700;}
+.month-days .day-cell.dimmed{opacity:0.15;}
+.calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 6px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-dim);}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex:none;}
+.unverified-list{margin-top:20px;display:flex;flex-direction:column;gap:8px;}
+.unverified-row{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 15px;font-size:12px;}
+.unverified-row b{color:var(--text);}
+.unverified-row .u-note{color:var(--text-faint);font-style:italic;display:block;margin-top:3px;}
+.key-date-row{display:flex;justify-content:space-between;gap:12px;background:var(--panel);border:1px solid var(--border);padding:13px 16px;border-radius:var(--r-sm);font-size:12.5px;}
+.key-date-row b{color:var(--text);}
+.key-date-row span{color:var(--text-faint);font-family:'IBM Plex Mono',monospace;font-size:11.5px;}
+
+/* advisor */
+.advisor-wrap{display:flex;flex-direction:column;height:540px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
+.advisor-messages{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:12px;}
+.msg{max-width:80%;padding:12px 16px;border-radius:16px;font-size:13.5px;line-height:1.55;}
+.msg.user{align-self:flex-end;background:var(--coral);color:#FFFFFF;font-weight:600;}
+[dir="rtl"] .msg.user{align-self:flex-start;}
+.msg.bot{align-self:flex-start;background:#EFF4F9;border:1px solid var(--border);white-space:pre-wrap;}
+[dir="rtl"] .msg.bot{align-self:flex-end;}
+.msg.bot.loading{color:var(--text-faint);font-style:italic;}
+.advisor-input-row{display:flex;gap:8px;padding:14px;border-top:1px solid var(--border);}
+.advisor-input-row textarea{flex:1;resize:none;background:#FFFFFF;border:1px solid var(--border-strong);color:var(--text);
+  padding:11px 13px;font-family:'Source Sans Pro',sans-serif;font-size:13.5px;border-radius:12px;}
+.advisor-input-row button{background:var(--coral-bright);border:none;color:#FFFFFF;font-weight:800;padding:0 22px;border-radius:12px;cursor:pointer;}
+.advisor-input-row button:disabled{opacity:.4;cursor:not-allowed;}
+.attach-btn{background:var(--panel-2)!important;color:var(--text)!important;font-size:16px;padding:0 14px!important;flex:none;}
+.attach-btn:hover{background:var(--panel-solid)!important;}
+.attachment-chip{display:inline-flex;align-items:center;gap:8px;background:#EDF1FB;color:var(--coral);
+  font-size:12px;padding:7px 12px;border-radius:999px;margin:0 14px 8px;}
+.attachment-chip button{background:none;border:none;color:var(--violet);cursor:pointer;font-size:12px;padding:0;}
+.attachment-chip-inline{font-size:10.5px;opacity:0.75;margin-top:6px;}
+.advisor-empty{color:var(--text-faint);font-size:13px;text-align:center;margin-top:36px;line-height:1.8;}
+.advisor-empty b{color:var(--text);}
+
+@media(max-width:640px){
+  .major-grid{grid-template-columns:1fr;}
+  .dim-preview{grid-template-columns:repeat(2,1fr);}
+  .dash-grid{grid-template-columns:1fr;}
+  nav{width:100%;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="data.js"></script>
+<script>
+/* ============================================================
+   I18N — UI strings, dimension labels, question texts (5 langs)
+   ============================================================ */
+const LANGS = ["en","ru","es","ar","fa"];
+const RTL = {ar:true, fa:true};
+const LANG_NAMES = {ru:"Русский", en:"English", es:"Español", ar:"العربية", fa:"فارسی"};
+
+const DIM_KEYS = ["people","data","things","ideas","structure","independence","leadership","detail","physical","creative"];
+const DIMENSIONS = {
+  people:      {ru:"Люди", en:"People", es:"Personas", ar:"الناس", fa:"مردم"},
+  data:        {ru:"Данные", en:"Data", es:"Datos", ar:"البيانات", fa:"داده‌ها"},
+  things:      {ru:"Системы/техника", en:"Systems/hands-on", es:"Sistemas/técnica", ar:"الأنظمة/التقنية", fa:"سیستم‌ها/فنی"},
+  ideas:       {ru:"Идеи", en:"Ideas", es:"Ideas", ar:"الأفكار", fa:"ایده‌ها"},
+  structure:   {ru:"Структура", en:"Structure", es:"Estructura", ar:"البنية", fa:"ساختار"},
+  independence:{ru:"Автономность", en:"Independence", es:"Autonomía", ar:"الاستقلالية", fa:"استقلال"},
+  leadership:  {ru:"Лидерство", en:"Leadership", es:"Liderazgo", ar:"القيادة", fa:"رهبری"},
+  detail:      {ru:"Точность", en:"Precision", es:"Precisión", ar:"الدقة", fa:"دقت"},
+  physical:    {ru:"Физическая активность", en:"Physical/Active", es:"Actividad física", ar:"النشاط البدني", fa:"فعالیت بدنی"},
+  creative:    {ru:"Творчество", en:"Creativity", es:"Creatividad", ar:"الإبداع", fa:"خلاقیت"},
+};
+
+const UI = {
+ru:{appName:"Compass", tagline:"Los Rios · навигатор карьеры и образования",
+  navDash:"Главная", navTest:"Тест", navResults:"Результаты", navEdu:"Образование", navAdvisor:"AI-адвайзер",
+  disclaimer:"Данные о карьерах и требованиях носят справочный характер и обновляются вручную — платформа не синхронизирована в реальном времени с сайтами Los Rios. Перед подачей документов сверяйся с counselor'ом и assist.org.",
+  ccnTag:"Важно прямо сейчас", ccnText:"С осени 2026 Los Rios переходит на новую систему нумерации курсов (CCN). Например, <b>BIOL 100 теперь BIOL 302</b>, а <b>ENGWR 300 → ENGL C1000</b>. Часть номеров ниже могут скоро измениться — всегда сверяй актуальный номер в расписании перед записью.",
+  heroEyebrow:"Профориентация · глубокая аналитика", heroTitle:"Твой старт здесь. Карьера, подобранная под тебя.",
+  heroLede:"70 вопросов по 10 измерениям — сопоставляются с реальными траекториями Los Rios и требованиями трансфера в UC/CSU.",
+  startBtn:"Начать тест →", retakeBtn:"Пройти тест заново",
+  dashWelcome:"С возвращением", dashNoResults:"Ты ещё не проходила тест — начни, чтобы получить персональный профиль.",
+  statTopTrait:"Ярче всего выражено", statMatch:"Лучшее совпадение", statChecklist:"Курсы отмечены", statLastTest:"Тест пройден",
+  retakeSuggestion:"С последнего теста прошло больше 4 месяцев — цели могли измениться. Стоит пересдать?",
+  pause:"← Пауза (вернуться позже)", qProgress:(a,b)=>`Вопрос ${a} из ${b}`,
+  scaleLabels:["Совсем не про меня","Скорее нет","Не уверена","Скорее да","Точно про меня"],
+  resultsEyebrow:"Твой профиль", resultsHeading:(t)=>`Сильнее всего выражено: ${t}`,
+  resultsIntro:"Это снимок текущих склонностей, не приговор. Ниже — карьеры, которые статистически ложатся на этот профиль, с объяснением почему.",
+  matchesHeading:"Топ совпадений", matchesSub:"Процент — близость профиля по 8 измерениям, не гарантия успеха.",
+  matchLabel:"совпадение", aiLabel:"ИИ-устойчивость", collegeLabel:"Колледж", transferLabel:"Transfer",
+  verifiedBadge:"Проверено", generalBadge:"Общая оценка",
+  eduEyebrow:"Образовательный план", eduTitle:"Требования по мейджорам — с номерами курсов",
+  eduLede:"Названия курсов оставлены на английском — так они выглядят в официальном каталоге Los Rios и на assist.org, это важно для точности при подаче петиций.",
+  keyDatesTitle:"Ключевые даты (проверено поиском)",
+  checklistTitle:"Мейджоры и базовые курсы", checklistHint:"Аббревиатуры, названия программ и курсов — на английском, как в официальном каталоге: так их проще найти при записи.", partialNote:"Это ориентир по ключевым базовым курсам, а не полная карта требований программы. Полный список смотри по ссылке ниже.", fullReqs:"Полные требования (Degrees & Certificates):",
+  advisorEyebrow:"AI-адвайзер", advisorTitle:"Уточни свой план вживую",
+  advisorLede:"Адвайзер уже знает результаты твоего теста.", advisorPlaceholder:"Спроси про план, курсы, карьеру...",
+  advisorSend:"Отправить", advisorEmpty:"Например: «Какие курсы усилят мой профиль для Health Informatics?», «Стоит ли мне рассматривать Nursing, если я не люблю рутину?» или «Как сделать себя ИИ-устойчивым специалистом в моей сфере?»",
+  langLabel:"Язык",
+  navCatalog:"Все программы", catalogTitle:"Полный каталог программ округа", catalogLede:"Название каждой программы взято дословно с сайта соответствующего колледжа (List of Programs, 2025-2026/2026-2027). Если название идентично в нескольких колледжах — они объединены в одну строку с несколькими тегами. Если названия различаются (даже незначительно) — они показаны отдельно, как есть на сайте, без обобщений.",
+  catalogSearch:"Поиск по названию...", catalogAllColleges:"Все колледжи", catalogCount:(n)=>`${n} категорий программ`,
+  aiMethodNote:"ИИ-устойчивость — направленная оценка по категории профессии, сверенная (июль 2026) с официальными данными O*NET Министерства труда США (показатель «Degree of Automation», 36 из 42 профессий имеют данные). Это не официальный сертифицированный показатель — используй как ориентир, не как факт.",
+  careersForMajor:"Профессии по этому мейджору:",
+  degreeUnknown:"уточняй на сайте колледжа", degreeNone:"нет диплома/сертификата (отдельный раздел)", degreeApprox:"⚠ неточное совпадение названия",
+  degreeLegend:"AA — Associate of Arts, AS — Associate of Science, AA-T/AS-T — трансферная версия (для UC/CSU), Certificate — сертификат. Источник: официальный окружной документ Los Rios «Programs and Majors» — уровень округа в целом, не гарантия того, что именно твой колледж предлагает каждый из этих типов.",
+  calendarSub:"Программы с ограниченным набором (impacted) требуют отдельной заявки помимо обычной регистрации — вот когда именно открыт приём.",
+  calendarSearchPlaceholder:"Найти мейджор (например, Nursing)...", calendarNoMatch:"Не найдено — либо название отличается, либо этой программы нет в списке ограниченного набора.",
+  calendarUnverifiedTag:"Точные даты не подтверждены — см. примечание ниже.", calendarUnverifiedTitle:"Известные программы с ограниченным набором без подтверждённых дат",
+  advisorAttachHint:"Можно прикрепить фото или PDF транскрипта — адвайзер посчитает пройденные кредиты и прикинет, сколько осталось.",
+  attachFile:"Прикрепить файл (фото/PDF)", attachTooLarge:"Файл слишком большой (макс. 15МБ) — попробуй сжать или обрезать.", attachUnsupported:"Поддерживаются только изображения и PDF.", linkCopied:"Открытие заблокировано этим окном — ссылка скопирована, вставь её в браузер."},
+en:{appName:"Compass", tagline:"Los Rios · career & education navigator",
+  navDash:"Home", navTest:"Test", navResults:"Results", navEdu:"Education", navAdvisor:"AI Advisor",
+  disclaimer:"Career and requirement data is for reference only and is updated manually — this platform is not synced in real time with Los Rios websites. Always verify with a counselor and assist.org before submitting paperwork.",
+  ccnTag:"Important right now", ccnText:"Starting Fall 2026, Los Rios is switching to a new Common Course Numbering system (CCN). For example, <b>BIOL 100 is now BIOL 302</b>, and <b>ENGWR 300 → ENGL C1000</b>. Some numbers below may change soon — always confirm the current number in the class schedule before registering.",
+  heroEyebrow:"Career discovery · deep analytics", heroTitle:"Your start is here. A career matched to who you are.",
+  heroLede:"70 questions across 10 dimensions — matched against real Los Rios pathways and UC/CSU transfer requirements.",
+  startBtn:"Start the test →", retakeBtn:"Retake the test",
+  dashWelcome:"Welcome back", dashNoResults:"You haven't taken the test yet — start it to get your personal profile.",
+  statTopTrait:"Strongest trait", statMatch:"Best match", statChecklist:"Courses checked", statLastTest:"Test taken",
+  retakeSuggestion:"It's been more than 4 months since your last test — your goals may have changed. Worth retaking?",
+  pause:"← Pause (come back later)", qProgress:(a,b)=>`Question ${a} of ${b}`,
+  scaleLabels:["Not me at all","Probably not","Not sure","Probably yes","Exactly me"],
+  resultsEyebrow:"Your profile", resultsHeading:(t)=>`Strongest traits: ${t}`,
+  resultsIntro:"This is a snapshot of your current tendencies, not a verdict. Below are careers that statistically fit this profile, with reasoning.",
+  matchesHeading:"Top matches", matchesSub:"The percentage is profile closeness across 8 dimensions, not a guarantee of success.",
+  matchLabel:"match", aiLabel:"AI resilience", collegeLabel:"College", transferLabel:"Transfer",
+  verifiedBadge:"Verified", generalBadge:"General estimate",
+  eduEyebrow:"Education plan", eduTitle:"Major requirements — with course numbers",
+  eduLede:"Course titles are kept in English — that's how they appear in the official Los Rios catalog and on assist.org, which matters for accuracy on petitions.",
+  keyDatesTitle:"Key dates (verified via search)",
+  checklistTitle:"Majors and core courses", checklistHint:"Program and course names are in English, as in the official catalog — easier to find when registering.", partialNote:"This is a guide to key foundational courses, not the program's complete requirements map. See the full course list at the link below.", fullReqs:"Full requirements (Degrees & Certificates):",
+  advisorEyebrow:"AI Advisor", advisorTitle:"Refine your plan live",
+  advisorLede:"The advisor already knows your test results.", advisorPlaceholder:"Ask about your plan, courses, career...",
+  advisorSend:"Send", advisorEmpty:"For example: \"Which courses would strengthen my profile for Health Informatics?\", \"Should I consider Nursing if I dislike routine?\" or \"How do I make myself an AI-resilient professional in my field?\"",
+  langLabel:"Language",
+  navCatalog:"All Programs", catalogTitle:"Full district program catalog", catalogLede:"Each program name is copied verbatim from that college's own site (List of Programs, 2025-2026/2026-2027). If the name is identical across colleges, they're merged into one row with multiple college tags. If names differ even slightly, they're shown as separate rows, exactly as published — nothing generalized.",
+  catalogSearch:"Search by name...", catalogAllColleges:"All colleges", catalogCount:(n)=>`${n} program categories`,
+  aiMethodNote:"AI resilience is a directional estimate by career category, cross-checked (July 2026) against the U.S. Department of Labor's official O*NET \"Degree of Automation\" data (36 of 42 careers have O*NET coverage). It is not an official certified score — use it as a compass, not a fact.",
+  careersForMajor:"Careers you can pursue with this major:",
+  degreeUnknown:"check the college's website", degreeNone:"no degree/certificate (administrative listing)", degreeApprox:"⚠ approximate name match",
+  degreeLegend:"AA — Associate of Arts, AS — Associate of Science, AA-T/AS-T — transfer version (for UC/CSU), Certificate — certificate. Source: official Los Rios district-wide \"Programs and Majors\" document — district level, not a guarantee your specific college offers every type listed.",
+  calendarSub:"Limited-entry (impacted) programs require a separate application beyond regular registration — here's exactly when that window is open.",
+  calendarSearchPlaceholder:"Search a major (e.g. Nursing)...", calendarNoMatch:"Not found — either the name differs, or this program isn't in the limited-entry list.",
+  calendarUnverifiedTag:"Exact dates not confirmed — see note below.", calendarUnverifiedTitle:"Known limited-entry programs without confirmed dates",
+  advisorAttachHint:"You can attach a photo or PDF of your transcript — the advisor will add up completed credits and estimate what's left.",
+  attachFile:"Attach file (photo/PDF)", attachTooLarge:"File too large (max 15MB) — try compressing or cropping it.", attachUnsupported:"Only images and PDFs are supported.", linkCopied:"Opening was blocked by this window — link copied, paste it into your browser."},
+es:{appName:"Compass", tagline:"Los Rios · navegador de carrera y educación",
+  navDash:"Inicio", navTest:"Test", navResults:"Resultados", navEdu:"Educación", navAdvisor:"Asesor IA",
+  disclaimer:"Los datos sobre carreras y requisitos son solo de referencia y se actualizan manualmente — esta plataforma no está sincronizada en tiempo real con los sitios de Los Rios. Verifica siempre con un consejero y assist.org antes de presentar documentos.",
+  ccnTag:"Importante ahora mismo", ccnText:"Desde el otoño de 2026, Los Rios está cambiando a un nuevo sistema de numeración común de cursos (CCN). Por ejemplo, <b>BIOL 100 ahora es BIOL 302</b>, y <b>ENGWR 300 → ENGL C1000</b>. Algunos números abajo pueden cambiar pronto — confirma siempre el número actual en el horario antes de inscribirte.",
+  heroEyebrow:"Orientación vocacional · análisis profundo", heroTitle:"Tu punto de partida está aquí. Una carrera hecha para ti.",
+  heroLede:"70 preguntas en 10 dimensiones, comparadas con trayectorias reales de Los Rios y requisitos de transferencia a UC/CSU.",
+  startBtn:"Comenzar el test →", retakeBtn:"Repetir el test",
+  dashWelcome:"Bienvenida de nuevo", dashNoResults:"Aún no has hecho el test — empieza para obtener tu perfil personal.",
+  statTopTrait:"Rasgo más fuerte", statMatch:"Mejor coincidencia", statChecklist:"Cursos marcados", statLastTest:"Test realizado",
+  retakeSuggestion:"Han pasado más de 4 meses desde tu último test — tus metas pueden haber cambiado. ¿Vale la pena repetirlo?",
+  pause:"← Pausa (volver luego)", qProgress:(a,b)=>`Pregunta ${a} de ${b}`,
+  scaleLabels:["Nada que ver conmigo","Probablemente no","No estoy segura","Probablemente sí","Totalmente yo"],
+  resultsEyebrow:"Tu perfil", resultsHeading:(t)=>`Rasgos más fuertes: ${t}`,
+  resultsIntro:"Esto es una foto de tus tendencias actuales, no un veredicto. Abajo, carreras que encajan estadísticamente con este perfil, con explicación.",
+  matchesHeading:"Mejores coincidencias", matchesSub:"El porcentaje es cercanía de perfil en 8 dimensiones, no garantía de éxito.",
+  matchLabel:"coincidencia", aiLabel:"Resiliencia ante la IA", collegeLabel:"Colegio", transferLabel:"Transferencia",
+  verifiedBadge:"Verificado", generalBadge:"Estimación general",
+  eduEyebrow:"Plan educativo", eduTitle:"Requisitos por especialidad — con números de curso",
+  eduLede:"Los nombres de los cursos se mantienen en inglés — así aparecen en el catálogo oficial de Los Rios y en assist.org, lo cual importa para la precisión en peticiones.",
+  keyDatesTitle:"Fechas clave (verificadas por búsqueda)",
+  checklistTitle:"Especialidades y cursos básicos", checklistHint:"Los nombres de programas y cursos están en inglés, como en el catálogo oficial — así es más fácil encontrarlos al inscribirte.", partialNote:"Esta es una guía de cursos básicos clave, no el mapa completo de requisitos del programa. Consulta la lista completa en el enlace de abajo.", fullReqs:"Requisitos completos (Degrees & Certificates):",
+  advisorEyebrow:"Asesor IA", advisorTitle:"Ajusta tu plan en vivo",
+  advisorLede:"El asesor ya conoce tus resultados del test.", advisorPlaceholder:"Pregunta sobre tu plan, cursos, carrera...",
+  advisorSend:"Enviar", advisorEmpty:"Por ejemplo: \"¿Qué cursos fortalecerían mi perfil para Health Informatics?\" , \"¿Debería considerar Nursing si no me gusta la rutina?\" o \"¿Cómo me hago un profesional resistente a la IA en mi campo?\"",
+  langLabel:"Idioma",
+  navCatalog:"Todos los programas", catalogTitle:"Catálogo completo de programas del distrito", catalogLede:"Cada nombre de programa se copió textualmente del sitio de ese colegio (List of Programs, 2025-2026/2026-2027). Si el nombre es idéntico en varios colegios, se fusionan en una fila con varias etiquetas. Si los nombres difieren, aunque sea levemente, se muestran por separado, tal como aparecen — sin generalizar.",
+  catalogSearch:"Buscar por nombre...", catalogAllColleges:"Todos los colegios", catalogCount:(n)=>`${n} categorías de programas`,
+  aiMethodNote:"La resiliencia ante la IA es una estimación direccional por categoría profesional, contrastada (julio 2026) con los datos oficiales O*NET del Departamento de Trabajo de EE. UU. (indicador «Degree of Automation», 36 de 42 profesiones con datos). No es una cifra oficial certificada — úsala como guía, no como hecho.",
+  careersForMajor:"Profesiones que puedes obtener con esta especialidad:",
+  degreeUnknown:"consulta el sitio del colegio", degreeNone:"sin título/certificado (listado administrativo)", degreeApprox:"⚠ coincidencia de nombre aproximada",
+  degreeLegend:"AA — Associate of Arts, AS — Associate of Science, AA-T/AS-T — versión de transferencia (para UC/CSU), Certificate — certificado. Fuente: documento oficial del distrito Los Rios \"Programs and Majors\" — nivel distrital, no garantiza que tu colegio específico ofrezca cada tipo.",
+  calendarSub:"Los programas de admisión limitada (impacted) requieren una solicitud aparte del registro normal — aquí está exactamente cuándo se abre esa ventana.",
+  calendarSearchPlaceholder:"Busca una especialidad (ej. Nursing)...", calendarNoMatch:"No encontrado — el nombre difiere, o este programa no está en la lista de admisión limitada.",
+  calendarUnverifiedTag:"Fechas exactas no confirmadas — ver nota abajo.", calendarUnverifiedTitle:"Programas de admisión limitada conocidos sin fechas confirmadas",
+  advisorAttachHint:"Puedes adjuntar una foto o PDF de tu historial académico — el asesor sumará los créditos completados y estimará lo que falta.",
+  attachFile:"Adjuntar archivo (foto/PDF)", attachTooLarge:"Archivo demasiado grande (máx. 15MB) — intenta comprimirlo o recortarlo.", attachUnsupported:"Solo se admiten imágenes y PDFs.", linkCopied:"La apertura fue bloqueada por esta ventana — enlace copiado, pégalo en tu navegador."},
+ar:{appName:"Compass", tagline:"لوس ريوس · دليل المسار المهني والتعليمي",
+  navDash:"الرئيسية", navTest:"الاختبار", navResults:"النتائج", navEdu:"التعليم", navAdvisor:"المستشار الذكي",
+  disclaimer:"بيانات المهن والمتطلبات مرجعية ويتم تحديثها يدوياً — هذه المنصة غير متزامنة لحظياً مع مواقع لوس ريوس. تحققي دائماً مع مستشارة أكاديمية ومن assist.org قبل تقديم أي أوراق.",
+  ccnTag:"مهم الآن", ccnText:"ابتداءً من خريف 2026، تنتقل لوس ريوس إلى نظام ترقيم موحد جديد للمقررات (CCN). على سبيل المثال، أصبح <b>BIOL 100 الآن BIOL 302</b>، و<b>ENGWR 300 → ENGL C1000</b>. قد تتغير بعض الأرقام أدناه قريباً — تحققي دائماً من الرقم الحالي في الجدول قبل التسجيل.",
+  heroEyebrow:"التوجيه المهني · تحليل عميق", heroTitle:"بدايتك من هنا. مسار مهني مصمم لك.",
+  heroLede:"70 سؤالاً عبر 10 أبعاد — تُقارَن بمسارات حقيقية في لوس ريوس ومتطلبات التحويل إلى UC/CSU.",
+  startBtn:"ابدئي الاختبار ←", retakeBtn:"أعيدي الاختبار",
+  dashWelcome:"مرحباً بعودتك", dashNoResults:"لم تخوضي الاختبار بعد — ابدئيه للحصول على ملفك الشخصي.",
+  statTopTrait:"أبرز سمة", statMatch:"أفضل تطابق", statChecklist:"مقررات مؤكدة", statLastTest:"تاريخ الاختبار",
+  retakeSuggestion:"مرت أكثر من 4 أشهر منذ آخر اختبار — قد تكون أهدافك تغيرت. هل تودين إعادته؟",
+  pause:"← إيقاف مؤقت (العودة لاحقاً)", qProgress:(a,b)=>`السؤال ${a} من ${b}`,
+  scaleLabels:["لا ينطبق علي أبداً","على الأرجح لا","غير متأكدة","على الأرجح نعم","ينطبق علي تماماً"],
+  resultsEyebrow:"ملفك الشخصي", resultsHeading:(t)=>`أبرز السمات: ${t}`,
+  resultsIntro:"هذه لقطة لميولك الحالية، وليست حكماً نهائياً. أدناه مهن تتوافق إحصائياً مع هذا الملف، مع التفسير.",
+  matchesHeading:"أفضل التطابقات", matchesSub:"النسبة هي قرب الملف عبر 8 أبعاد، وليست ضماناً للنجاح.",
+  matchLabel:"تطابق", aiLabel:"مقاومة الأتمتة بالذكاء الاصطناعي", collegeLabel:"الكلية", transferLabel:"التحويل",
+  verifiedBadge:"موثّق", generalBadge:"تقدير عام",
+  eduEyebrow:"الخطة التعليمية", eduTitle:"متطلبات التخصصات — مع أرقام المقررات",
+  eduLede:"أسماء المقررات تُركت بالإنجليزية — فهكذا تظهر في كتالوج لوس ريوس الرسمي وعلى assist.org، وهذا مهم للدقة عند تقديم الالتماسات.",
+  keyDatesTitle:"تواريخ مهمة (موثّقة عبر البحث)",
+  checklistTitle:"التخصصات والمقررات الأساسية", checklistHint:"أسماء البرامج والمقررات بالإنجليزية كما في الكتالوج الرسمي — ليسهل إيجادها عند التسجيل.", partialNote:"هذا دليل لأهم المقررات الأساسية، وليس خريطة المتطلبات الكاملة للبرنامج. راجعي القائمة الكاملة عبر الرابط أدناه.", fullReqs:"المتطلبات الكاملة (Degrees & Certificates):",
+  advisorEyebrow:"المستشار الذكي", advisorTitle:"دقّقي خطتك مباشرة",
+  advisorLede:"المستشار يعرف بالفعل نتائج اختبارك.", advisorPlaceholder:"اسألي عن خطتك، المقررات، المهنة...",
+  advisorSend:"إرسال", advisorEmpty:"مثال: «ما المقررات التي تعزز ملفي لتخصص المعلوماتية الصحية؟» ، «هل يجب أن أفكر في التمريض إذا كنت لا أحب الروتين؟» أو «كيف أجعل نفسي مهنية صامدة أمام الذكاء الاصطناعي في مجالي؟»",
+  langLabel:"اللغة",
+  navCatalog:"كل البرامج", catalogTitle:"الكتالوج الكامل لبرامج المقاطعة", catalogLede:"اسم كل برنامج مأخوذ حرفياً من موقع تلك الكلية (List of Programs، 2025-2026/2026-2027). إذا كان الاسم متطابقاً في عدة كليات، تُدمج في صف واحد بعدة علامات. إذا اختلفت الأسماء ولو قليلاً، تُعرض كصفوف منفصلة كما وردت تماماً — دون تعميم.",
+  catalogSearch:"ابحثي بالاسم...", catalogAllColleges:"كل الكليات", catalogCount:(n)=>`${n} فئة برامج`,
+  aiMethodNote:"مقاومة الذكاء الاصطناعي تقدير توجيهي حسب فئة المهنة، تمت مراجعته (يوليو 2026) مقابل بيانات O*NET الرسمية لوزارة العمل الأمريكية (مؤشر «درجة الأتمتة»، تتوفر بيانات لـ36 من 42 مهنة). ليست رقماً رسمياً موثّقاً — استخدميها كبوصلة لا كحقيقة.",
+  careersForMajor:"مهن يمكنك الحصول عليها بهذا التخصص:",
+  degreeUnknown:"تحققي من موقع الكلية", degreeNone:"لا توجد درجة/شهادة (قسم إداري)", degreeApprox:"⚠ تطابق تقريبي بالاسم",
+  degreeLegend:"AA — درجة الفنون المشارك، AS — درجة العلوم المشارك، AA-T/AS-T — نسخة النقل (لـ UC/CSU)، Certificate — شهادة. المصدر: وثيقة مقاطعة لوس ريوس الرسمية «Programs and Majors» — على مستوى المقاطعة، وليست ضماناً بأن كليتك تقدم كل نوع مذكور.",
+  calendarSub:"البرامج ذات القبول المحدود (impacted) تتطلب طلباً منفصلاً غير التسجيل العادي — إليك بالضبط متى تُفتح تلك الفترة.",
+  calendarSearchPlaceholder:"ابحثي عن تخصص (مثل Nursing)...", calendarNoMatch:"لم يُعثر عليه — إما أن الاسم مختلف، أو أن هذا البرنامج ليس ضمن قائمة القبول المحدود.",
+  calendarUnverifiedTag:"التواريخ الدقيقة غير مؤكدة — انظري الملاحظة أدناه.", calendarUnverifiedTitle:"برامج قبول محدود معروفة دون تواريخ مؤكدة",
+  advisorAttachHint:"يمكنك إرفاق صورة أو ملف PDF لسجلك الأكاديمي — سيجمع المستشار الساعات المكتملة ويقدّر ما تبقى.",
+  attachFile:"إرفاق ملف (صورة/PDF)", attachTooLarge:"الملف كبير جداً (الحد الأقصى 15 ميغابايت) — جربي ضغطه أو قصّه.", attachUnsupported:"يُدعم فقط الصور وملفات PDF.", linkCopied:"تم حظر الفتح في هذه النافذة — تم نسخ الرابط، الصقيه في المتصفح."},
+fa:{appName:"Compass", tagline:"لوس ریوس · راهنمای شغل و تحصیل",
+  navDash:"خانه", navTest:"آزمون", navResults:"نتایج", navEdu:"برنامه تحصیلی", navAdvisor:"مشاور هوش مصنوعی",
+  disclaimer:"داده‌های مربوط به مشاغل و الزامات صرفاً مرجع هستند و به‌صورت دستی به‌روزرسانی می‌شوند — این پلتفرم به‌صورت لحظه‌ای با سایت‌های لوس ریوس همگام نیست. همیشه پیش از ارسال مدارک با مشاور تحصیلی و assist.org بررسی کن.",
+  ccnTag:"مهم همین حالا", ccnText:"از پاییز ۲۰۲۶، لوس ریوس به سیستم شماره‌گذاری مشترک جدید دروس (CCN) منتقل می‌شود. برای مثال، <b>BIOL 100 اکنون BIOL 302</b> است و <b>ENGWR 300 → ENGL C1000</b>. برخی شماره‌های زیر ممکن است به‌زودی تغییر کنند — همیشه پیش از ثبت‌نام، شماره فعلی را در برنامه درسی بررسی کن.",
+  heroEyebrow:"مشاوره شغلی · تحلیل عمیق", heroTitle:"شروع تو از اینجاست. مسیری شغلی که با تو هماهنگ است.",
+  heroLede:"۷۰ پرسش در ۱۰ بُعد — مقایسه‌شده با مسیرهای واقعی لوس ریوس و الزامات انتقال به UC/CSU.",
+  startBtn:"شروع آزمون ←", retakeBtn:"آزمون را دوباره انجام بده",
+  dashWelcome:"خوش برگشتی", dashNoResults:"هنوز آزمون را انجام نداده‌ای — برای دریافت پروفایل شخصی‌ات شروع کن.",
+  statTopTrait:"قوی‌ترین ویژگی", statMatch:"بهترین تطابق", statChecklist:"دروس تیک‌خورده", statLastTest:"تاریخ آزمون",
+  retakeSuggestion:"بیش از ۴ ماه از آخرین آزمونت گذشته — شاید اهدافت تغییر کرده. دوباره انجام بدهی؟",
+  pause:"← مکث (بعداً برگرد)", qProgress:(a,b)=>`سؤال ${a} از ${b}`,
+  scaleLabels:["اصلاً به من نمی‌خورد","احتمالاً نه","مطمئن نیستم","احتمالاً بله","دقیقاً خودم"],
+  resultsEyebrow:"پروفایل تو", resultsHeading:(t)=>`قوی‌ترین ویژگی‌ها: ${t}`,
+  resultsIntro:"این یک تصویر از گرایش‌های فعلی توست، نه یک حکم قطعی. در ادامه مشاغلی که آماری با این پروفایل همخوانی دارند، با توضیح.",
+  matchesHeading:"بهترین تطابق‌ها", matchesSub:"درصد، نزدیکی پروفایل در ۸ بُعد است، نه تضمین موفقیت.",
+  matchLabel:"تطابق", aiLabel:"مقاومت در برابر هوش مصنوعی", collegeLabel:"کالج", transferLabel:"انتقال",
+  verifiedBadge:"تأییدشده", generalBadge:"برآورد کلی",
+  eduEyebrow:"برنامه تحصیلی", eduTitle:"الزامات رشته‌ها — با شماره دروس",
+  eduLede:"عناوین دروس به انگلیسی نگه داشته شده‌اند — همان‌طور که در کاتالوگ رسمی لوس ریوس و assist.org می‌آیند، که برای دقت در درخواست‌ها مهم است.",
+  keyDatesTitle:"تاریخ‌های مهم (تأییدشده با جستجو)",
+  checklistTitle:"رشته‌ها و دروس پایه", checklistHint:"نام برنامه‌ها و دروس به انگلیسی است، مانند کاتالوگ رسمی — تا هنگام ثبت‌نام راحت‌تر پیدا شوند.", partialNote:"این راهنمای دروس پایه کلیدی است، نه نقشه کامل الزامات برنامه. فهرست کامل را در لینک زیر ببین.", fullReqs:"الزامات کامل (Degrees & Certificates):",
+  advisorEyebrow:"مشاور هوش مصنوعی", advisorTitle:"برنامه‌ات را به‌صورت زنده دقیق کن",
+  advisorLede:"مشاور از قبل نتایج آزمونت را می‌داند.", advisorPlaceholder:"درباره برنامه، دروس، شغل بپرس...",
+  advisorSend:"ارسال", advisorEmpty:"مثلاً: «کدام دروس پروفایلم را برای Health Informatics قوی‌تر می‌کند؟» ، «اگر از روتین خوشم نمی‌آید، Nursing مناسب است؟» یا «چطور در حوزه خودم متخصصی مقاوم در برابر هوش مصنوعی شوم؟»",
+  langLabel:"زبان",
+  navCatalog:"همه رشته‌ها", catalogTitle:"کاتالوگ کامل رشته‌های منطقه", catalogLede:"نام هر رشته دقیقاً از سایت همان کالج کپی شده (List of Programs، ۲۰۲۵-۲۰۲۶/۲۰۲۶-۲۰۲۷). اگر نام در چند کالج یکسان باشد، در یک ردیف با چند برچسب ادغام می‌شود. اگر نام‌ها حتی کمی متفاوت باشند، به‌صورت جداگانه و دقیقاً همان‌طور که منتشر شده نمایش داده می‌شوند — بدون تعمیم.",
+  catalogSearch:"جستجو با نام...", catalogAllColleges:"همه کالج‌ها", catalogCount:(n)=>`${n} دسته رشته`,
+  aiMethodNote:"مقاومت در برابر هوش مصنوعی برآوردی جهت‌دار بر اساس دسته شغلی است که (ژوئیه ۲۰۲۶) با داده‌های رسمی O*NET وزارت کار آمریکا (شاخص «درجه خودکارسازی»، ۳۶ از ۴۲ شغل دارای داده) مقایسه شده است. رقم رسمی تأییدشده نیست — آن را راهنما بدان، نه واقعیت.",
+  careersForMajor:"مشاغلی که با این رشته می‌توانی به دست بیاوری:",
+  degreeUnknown:"سایت کالج را بررسی کن", degreeNone:"بدون مدرک/گواهی (فهرست اداری)", degreeApprox:"⚠ تطابق تقریبی نام",
+  degreeLegend:"AA — مدرک هنر، AS — مدرک علوم، AA-T/AS-T — نسخه انتقال (برای UC/CSU)، Certificate — گواهی‌نامه. منبع: سند رسمی منطقه لوس ریوس «Programs and Majors» — در سطح منطقه، نه تضمینی که کالج خاص تو هر نوع را ارائه دهد.",
+  calendarSub:"برنامه‌های با ظرفیت محدود (impacted) نیاز به درخواست جداگانه فراتر از ثبت‌نام معمولی دارند — این دقیقاً زمانی است که آن بازه باز است.",
+  calendarSearchPlaceholder:"جستجوی رشته (مثلاً Nursing)...", calendarNoMatch:"یافت نشد — یا نام متفاوت است، یا این رشته در فهرست ظرفیت محدود نیست.",
+  calendarUnverifiedTag:"تاریخ‌های دقیق تأیید نشده — یادداشت زیر را ببین.", calendarUnverifiedTitle:"رشته‌های شناخته‌شده با ظرفیت محدود بدون تاریخ تأییدشده",
+  advisorAttachHint:"می‌توانی عکس یا PDF ریزنمرات خود را پیوست کنی — مشاور واحدهای گذرانده را جمع می‌زند و باقی‌مانده را تخمین می‌زند.",
+  attachFile:"پیوست فایل (عکس/PDF)", attachTooLarge:"فایل خیلی بزرگ است (حداکثر ۱۵ مگابایت) — فشرده یا برش بده.", attachUnsupported:"فقط تصاویر و PDF پشتیبانی می‌شود.", linkCopied:"باز کردن در این پنجره مسدود شد — لینک کپی شد، آن را در مرورگر جای‌گذاری کن."},
+};
+
+/* Questions: dim order (8 dims x 7) + text per language, same index across langs */
+const Q_DIMS = [];
+DIM_KEYS.forEach(d=>{ for(let i=0;i<7;i++) Q_DIMS.push(d); });
+
+const Q_TEXT = {
+ru:["Мне нравится, когда моя работа связана с постоянным общением с людьми.","Я быстро считываю эмоциональное состояние человека и подстраиваюсь под него.","Помочь кому-то решить проблему приносит мне больше удовлетворения, чем решить задачу в одиночку.","Я готова объяснять одно и то же разным людям снова и снова, если это им реально поможет.","Работа, где нужно целый день сидеть в одиночестве без контакта с людьми, меня утомляет.","Мне легко устанавливать доверительный контакт с незнакомыми людьми.","При прочих равных я выберу профессию «с людьми», а не «с бумагами/данными».",
+"Мне нравится находить закономерности в цифрах и данных.","Я получаю удовольствие от того, чтобы разложить сложную проблему на логические шаги.","Таблицы, отчёты, статистика не пугают меня — наоборот, увлекают.","Я люблю проверять факты и данные, а не полагаться на «и так сойдёт».","Мне интересно, как автоматизировать рутинные процессы с помощью анализа данных.","Я замечаю ошибки в расчётах или логике быстрее, чем большинство людей вокруг.","Я скорее посвящу вечер разбору статистики, чем разговору «ни о чём».",
+"Мне нравится разбираться, как устроены технические системы изнутри.","Я скорее почитаю инструкцию и разберу что-то по частям сама, чем позову другого человека.","Работа с оборудованием, компьютерными системами или техникой в широком смысле меня привлекает.","Мне важно видеть физический или технический результат своей работы.","Настройка систем, программ, оборудования — то, чем я готова заниматься часами.","Я скорее починю/настрою что-то сама, чем заплачу за это, если есть время.","Меня привлекает работа с автомобилями, техникой, компьютерными системами.",
+"Мне нравится придумывать новые идеи и концепции, даже если их сложно сразу применить.","Я часто задаюсь вопросом «а что если» и «почему именно так устроено».","Мне важно понимать суть вещей, а не просто выполнять инструкцию.","Я изучаю темы не потому что «надо», а потому что мне реально интересно.","Абстрактные теории и модели меня увлекают даже без немедленной практической пользы.","Мне нравится придумывать нестандартные решения проблем.","Философские и мировоззренческие вопросы вызывают у меня искренний интерес.",
+"Мне комфортнее, когда у рабочего дня есть чёткий план и распорядок.","Непредсказуемые изменения планов выбивают меня из колеи.","Я предпочитаю знать заранее, что от меня ожидается, чем импровизировать на ходу.","Чёткие правила и процедуры облегчают мне работу, а не раздражают.","Мне важно, чтобы задачи были структурированы, а не «разберёшься по ходу».","Я лучше работаю в стабильной, предсказуемой среде, чем в постоянном хаосе.","Смена задач каждые 20 минут скорее утомляет меня, чем заряжает.",
+"Я работаю продуктивнее, когда сама отвечаю за весь процесс, без постоянного контроля.","Мне некомфортно, когда решение нужно принимать коллективно, а не самостоятельно.","Я предпочитаю разобраться в задаче сама, а не спрашивать помощи на каждом шагу.","Работа в одиночку не пугает меня — наоборот, даёт свободу.","Мне важно иметь возможность принимать решения без постоянного согласования.","Я быстрее устаю от долгих групповых обсуждений, чем от самостоятельной работы.","Я доверяю своим выводам больше, чем мнению большинства.",
+"Мне нравится брать на себя ответственность за результат группы.","Я часто оказываюсь тем человеком, который организует и направляет остальных.","Мне комфортно принимать решения, которые повлияют на других людей.","Я люблю убеждать и вести за собой, а не просто исполнять чужие указания.","Роль «капитана» в проекте привлекает меня больше, чем роль исполнителя.","Я легко беру инициативу, когда вижу, что процесс идёт не туда.","Мне важно видеть, как моё руководство помогает команде достигать результата.",
+"Я замечаю мелкие неточности, которые другие пропускают.","Мне важно, чтобы всё было сделано точно и без ошибок, даже если это медленнее.","Проверка деталей и корректура не утомляет меня — я отношусь к этому спокойно.","Мне комфортнее работать по чёткому протоколу, где важна каждая мелочь.","Я скорее переделаю работу, чем сдам её с небольшой неточностью.","Работа, требующая скрупулёзности (документы, данные, код, дозировки), меня не пугает.","Мне проще заметить ошибку в системе, чем сразу увидеть общую картину.",
+"Мне нравится работа, где я двигаюсь, а не сижу на месте весь день.","Физическая активность даёт мне энергию, а не отнимает её.","Я предпочту работу «на ногах» работе за столом.","Мне нравится добиваться результатов, где важны сила, выносливость или ловкость.","Спорт или физические тренировки — важная часть моей жизни.","Работа на свежем воздухе привлекает меня больше, чем офис.","Мне комфортно работать руками и телом, а не только головой.","Мне важно создавать что-то красивое или выразительное.","Я получаю удовольствие от рисования, музыки, дизайна или другого творчества.","Я замечаю эстетику вокруг: цвета, формы, композицию.","Мне нравится придумывать и воплощать собственные творческие идеи.","Самовыражение для меня — важная часть работы, а не бонус.","Я люблю превращать обычные вещи в красивые: еду, пространство, образ.","Работа без капли творчества быстро становится для меня скучной."],
+en:["I like it when my work involves constant interaction with people.","I quickly pick up on someone's emotional state and adjust to it.","Helping someone solve a problem is more satisfying to me than solving it alone.","I'm willing to explain the same thing to different people again and again if it actually helps them.","A job where I sit alone all day with no contact with people wears me out.","I find it easy to build trust with people I've just met.","Given the choice, I'd pick a \"people\" job over a \"paperwork/data\" job.",
+"I enjoy finding patterns in numbers and data.","I get satisfaction from breaking a complex problem into logical steps.","Tables, reports, and statistics don't scare me — they draw me in.","I like double-checking facts and data rather than assuming \"close enough.\"","I'm curious about automating routine processes through data analysis.","I notice errors in calculations or logic faster than most people around me.","I'd rather spend an evening digging into statistics than making small talk.",
+"I like figuring out how technical systems work on the inside.","I'd rather read the manual and take something apart myself than call someone else.","Working with equipment or technology broadly (including computer hardware/systems) appeals to me.","It matters to me to see a physical or technical result from my work.","Configuring systems, software, or equipment is something I could do for hours.","I'd rather fix or set something up myself than pay someone else, if I have the time.","I'm drawn to working with cars, machinery, or computer systems.",
+"I like coming up with new ideas and concepts, even if they're hard to apply right away.","I often wonder \"what if\" and \"why is it built this way.\"","Understanding the essence of things matters more to me than just following instructions.","I study topics not because I \"have to,\" but because I'm genuinely curious.","Abstract theories and models fascinate me even without immediate practical use.","I enjoy coming up with unconventional solutions to problems.","Philosophical and worldview questions genuinely interest me.",
+"I'm more comfortable when my day has a clear plan and routine.","Unpredictable changes to plans throw me off.","I'd rather know in advance what's expected of me than improvise on the spot.","Clear rules and procedures make my work easier, not more annoying.","I need tasks to be clearly structured, not \"you'll figure it out as you go.\"","I work better in a stable, predictable environment than in constant chaos.","Switching tasks every 20 minutes drains me rather than energizes me.",
+"I'm more productive when I'm responsible for the whole process, without constant oversight.","I'm uncomfortable when a decision has to be made as a group rather than on my own.","I'd rather figure out a task myself than ask for help at every step.","Working alone doesn't scare me — it actually gives me freedom.","It matters to me to make decisions without constant sign-off from others.","I get tired of long group discussions faster than I get tired of working solo.","I trust my own conclusions more than the majority opinion.",
+"I like taking responsibility for a group's outcome.","I often end up being the person who organizes and directs everyone else.","I'm comfortable making decisions that will affect other people.","I like persuading and leading rather than just carrying out instructions.","Being the \"captain\" of a project appeals to me more than being an executor.","I easily take initiative when I see a process going the wrong way.","It matters to me to see my leadership help a team get results.",
+"I notice small inaccuracies that others miss.","It matters to me that everything is done precisely and without errors, even if it's slower.","Checking details and proofreading doesn't tire me — I'm calm about it.","I'm more comfortable working by a strict protocol where every detail matters.","I'd rather redo work than turn it in with a small inaccuracy.","Work that requires meticulousness (documents, data, code, dosages) doesn't scare me.","It's easier for me to spot an error in a system than to see the big picture right away.",
+"I like work where I move around rather than sit all day.","Physical activity gives me energy instead of draining it.","I'd choose an on-my-feet job over a desk job.","I enjoy results that take strength, stamina, or dexterity.","Sports or physical training are an important part of my life.","Working outdoors appeals to me more than an office.","I'm comfortable working with my hands and body, not just my head.","It matters to me to create something beautiful or expressive.","I enjoy drawing, music, design, or another form of creativity.","I notice aesthetics around me: colors, shapes, composition.","I like coming up with my own creative ideas and bringing them to life.","Self-expression is a core part of work for me, not a bonus.","I love turning ordinary things into beautiful ones: food, spaces, a look.","Work with no trace of creativity quickly becomes boring to me."],
+es:["Me gusta que mi trabajo implique interactuar constantemente con personas.","Capto rápidamente el estado emocional de alguien y me adapto a él.","Ayudar a alguien a resolver un problema me satisface más que resolverlo yo sola.","Estoy dispuesta a explicar lo mismo a distintas personas una y otra vez si de verdad les ayuda.","Un trabajo donde paso todo el día sola sin contacto con gente me agota.","Me resulta fácil generar confianza con personas que acabo de conocer.","Si tuviera que elegir, prefiero un trabajo \"con personas\" antes que uno \"con papeles/datos\".",
+"Disfruto encontrando patrones en números y datos.","Me satisface descomponer un problema complejo en pasos lógicos.","Las tablas, informes y estadísticas no me asustan — me atraen.","Prefiero verificar hechos y datos en vez de asumir que \"así está bien\".","Me interesa automatizar procesos rutinarios mediante análisis de datos.","Detecto errores de cálculo o de lógica más rápido que la mayoría.","Prefiero pasar una tarde analizando estadísticas que charlando de cosas sin importancia.",
+"Me gusta entender cómo funcionan los sistemas técnicos por dentro.","Prefiero leer el manual y desarmar algo yo misma antes que llamar a otra persona.","Trabajar con equipos o tecnología en un sentido amplio (incluyendo hardware o sistemas informáticos) me atrae.","Me importa ver un resultado físico o técnico de mi trabajo.","Configurar sistemas, programas o equipos es algo que podría hacer durante horas.","Prefiero arreglar o configurar algo yo misma antes que pagarle a alguien, si tengo tiempo.","Me atrae trabajar con autos, maquinaria o sistemas informáticos.",
+"Me gusta generar ideas y conceptos nuevos, aunque sean difíciles de aplicar de inmediato.","Frecuentemente me pregunto \"¿y si...?\" y \"¿por qué está construido así?\".","Entender la esencia de las cosas me importa más que simplemente seguir instrucciones.","Estudio temas no porque \"tenga que\", sino porque genuinamente me interesan.","Las teorías y modelos abstractos me fascinan aunque no tengan uso práctico inmediato.","Disfruto encontrando soluciones poco convencionales a los problemas.","Las preguntas filosóficas y existenciales me interesan de verdad.",
+"Me siento más cómoda cuando mi día tiene un plan y una rutina claros.","Los cambios de planes impredecibles me desestabilizan.","Prefiero saber de antemano qué se espera de mí, en vez de improvisar sobre la marcha.","Las reglas y procedimientos claros facilitan mi trabajo, no me molestan.","Necesito que las tareas estén bien estructuradas, no \"ya lo irás descubriendo\".","Trabajo mejor en un entorno estable y predecible que en un caos constante.","Cambiar de tarea cada 20 minutos me agota más de lo que me energiza.",
+"Soy más productiva cuando soy responsable de todo el proceso, sin supervisión constante.","Me incomoda cuando una decisión debe tomarse en grupo en vez de por mi cuenta.","Prefiero resolver una tarea yo misma antes que pedir ayuda en cada paso.","Trabajar sola no me asusta — al contrario, me da libertad.","Me importa poder tomar decisiones sin necesitar aprobación constante.","Me canso más rápido de las discusiones grupales largas que del trabajo en solitario.","Confío más en mis propias conclusiones que en la opinión de la mayoría.",
+"Me gusta asumir la responsabilidad por el resultado de un grupo.","Frecuentemente termino siendo quien organiza y dirige a los demás.","Me siento cómoda tomando decisiones que afectarán a otras personas.","Me gusta persuadir y liderar, no solo ejecutar instrucciones.","El rol de \"capitana\" en un proyecto me atrae más que el de ejecutora.","Tomo la iniciativa fácilmente cuando veo que un proceso va por mal camino.","Me importa ver cómo mi liderazgo ayuda a un equipo a lograr resultados.",
+"Noto pequeñas imprecisiones que otros pasan por alto.","Me importa que todo se haga con precisión y sin errores, aunque sea más lento.","Revisar detalles y corregir no me cansa — lo llevo con calma.","Me siento más cómoda trabajando con un protocolo estricto donde cada detalle importa.","Prefiero rehacer un trabajo antes que entregarlo con una pequeña imprecisión.","Un trabajo que exige minuciosidad (documentos, datos, código, dosis) no me asusta.","Me resulta más fácil detectar un error en un sistema que ver el panorama general de inmediato.",
+"Me gusta un trabajo donde me muevo, no donde estoy sentada todo el día.","La actividad física me da energía en lugar de quitármela.","Prefiero un trabajo de pie a un trabajo de escritorio.","Disfruto los resultados que requieren fuerza, resistencia o destreza.","El deporte o el entrenamiento físico son una parte importante de mi vida.","Trabajar al aire libre me atrae más que una oficina.","Me siento cómoda trabajando con mis manos y mi cuerpo, no solo con la cabeza.","Me importa crear algo bello o expresivo.","Disfruto dibujar, la música, el diseño u otra forma de creatividad.","Noto la estética a mi alrededor: colores, formas, composición.","Me gusta idear y realizar mis propias ideas creativas.","La autoexpresión es parte esencial del trabajo para mí, no un extra.","Me encanta convertir cosas comunes en algo bello: comida, espacios, un look.","Un trabajo sin nada de creatividad me aburre rápidamente."],
+ar:["يعجبني أن يتضمن عملي تواصلاً مستمراً مع الناس.","ألاحظ بسرعة الحالة العاطفية للشخص وأتكيف معها.","مساعدة شخص ما على حل مشكلته تمنحني رضا أكبر من حلها بمفردي.","أنا مستعدة لشرح الشيء نفسه لأشخاص مختلفين مراراً إذا كان ذلك يفيدهم فعلاً.","العمل الذي أجلس فيه وحدي طوال اليوم دون تواصل مع الناس يرهقني.","من السهل علي بناء الثقة مع أشخاص جدد.","عند التساوي، أفضل وظيفة «مع الناس» على وظيفة «مع الأوراق/البيانات».",
+"أستمتع بإيجاد الأنماط في الأرقام والبيانات.","أشعر بالرضا عند تقسيم مشكلة معقدة إلى خطوات منطقية.","الجداول والتقارير والإحصاءات لا تخيفني — بل تجذبني.","أفضل التحقق من الحقائق والبيانات بدلاً من افتراض أن الأمر «جيد بما يكفي».","يثير اهتمامي أتمتة العمليات الروتينية عبر تحليل البيانات.","ألاحظ الأخطاء في الحسابات أو المنطق أسرع من معظم من حولي.","أفضل قضاء أمسية في تحليل الإحصاءات على حديث عابر بلا معنى.",
+"يعجبني فهم كيفية عمل الأنظمة التقنية من الداخل.","أفضل قراءة الدليل وتفكيك شيء ما بنفسي على الاستعانة بشخص آخر.","العمل مع المعدات أو التقنية بمعناها الواسع (بما في ذلك أجهزة وأنظمة الحاسوب) يجذبني.","من المهم لي أن أرى نتيجة مادية أو تقنية لعملي.","إعداد الأنظمة والبرامج والمعدات هو شيء يمكنني القيام به لساعات.","أفضل إصلاح أو ضبط شيء بنفسي على دفع المال لشخص آخر إن كان لدي الوقت.","ينجذب اهتمامي للعمل مع السيارات أو الآلات أو أنظمة الحاسوب.",
+"يعجبني ابتكار أفكار ومفاهيم جديدة حتى لو كان تطبيقها صعباً في الحال.","كثيراً ما أتساءل «ماذا لو» و«لماذا بُني الأمر على هذا النحو».","فهم جوهر الأشياء أهم بالنسبة لي من مجرد اتباع التعليمات.","أدرس مواضيع ليس لأنني «مضطرة» بل لأنني مهتمة فعلاً.","النظريات والنماذج المجردة تسحرني حتى دون فائدة عملية فورية.","أستمتع بابتكار حلول غير تقليدية للمشكلات.","الأسئلة الفلسفية والوجودية تثير اهتمامي الحقيقي.",
+"أشعر براحة أكبر عندما يكون ليومي خطة وروتين واضحان.","التغييرات غير المتوقعة في الخطط تربكني.","أفضل معرفة ما هو متوقع مني مسبقاً على الارتجال في اللحظة.","القواعد والإجراءات الواضحة تسهّل عملي ولا تزعجني.","أحتاج أن تكون المهام منظمة بوضوح، لا أن «أكتشف الأمر أثناء العمل».","أعمل بشكل أفضل في بيئة مستقرة ويمكن التنبؤ بها من الفوضى المستمرة.","تبديل المهام كل 20 دقيقة يستنزفني أكثر مما ينشطني.",
+"أكون أكثر إنتاجية عندما أكون مسؤولة عن العملية بأكملها دون رقابة مستمرة.","أشعر بعدم الارتياح عندما يجب اتخاذ قرار جماعياً بدلاً من بمفردي.","أفضل حل المهمة بنفسي على طلب المساعدة في كل خطوة.","العمل بمفردي لا يخيفني — بل يمنحني الحرية.","من المهم لي اتخاذ القرارات دون موافقة مستمرة من الآخرين.","أتعب من النقاشات الجماعية الطويلة أسرع من تعبي من العمل الفردي.","أثق باستنتاجاتي أكثر من ثقتي برأي الأغلبية.",
+"يعجبني تحمل المسؤولية عن نتيجة المجموعة.","غالباً ما أكون الشخص الذي ينظم ويوجه الآخرين.","أشعر بالارتياح عند اتخاذ قرارات ستؤثر على أشخاص آخرين.","يعجبني الإقناع والقيادة أكثر من مجرد تنفيذ التعليمات.","دور «القائدة» في مشروع يجذبني أكثر من دور المنفذة.","أبادر بسهولة عندما أرى أن العملية تسير في الاتجاه الخاطئ.","من المهم لي أن أرى كيف تساعد قيادتي الفريق على تحقيق النتائج.",
+"ألاحظ الأخطاء الصغيرة التي يغفل عنها الآخرون.","من المهم لي أن يتم كل شيء بدقة ودون أخطاء حتى لو استغرق وقتاً أطول.","مراجعة التفاصيل والتدقيق لا يرهقني — أتعامل معه بهدوء.","أشعر بارتياح أكبر في العمل وفق بروتوكول صارم حيث كل تفصيل مهم.","أفضل إعادة العمل على تسليمه بخلل بسيط.","العمل الذي يتطلب الدقة (المستندات، البيانات، الشيفرة، الجرعات) لا يخيفني.","من الأسهل علي ملاحظة خطأ في نظام ما من رؤية الصورة الكاملة فوراً.",
+"يعجبني عمل أتحرك فيه بدلاً من الجلوس طوال اليوم.","النشاط البدني يمنحني الطاقة بدلاً من أن يستنزفها.","أفضل عملاً أكون فيه واقفة ومتحركة على عمل مكتبي.","أستمتع بالنتائج التي تتطلب قوة أو تحملاً أو مهارة حركية.","الرياضة أو التمارين البدنية جزء مهم من حياتي.","العمل في الهواء الطلق يجذبني أكثر من المكتب.","أشعر بالراحة في العمل بيديّ وجسدي، لا بعقلي فقط.","من المهم لي أن أبدع شيئاً جميلاً أو معبّراً.","أستمتع بالرسم أو الموسيقى أو التصميم أو أي شكل آخر من الإبداع.","ألاحظ الجماليات من حولي: الألوان والأشكال والتكوين.","يعجبني ابتكار أفكاري الإبداعية الخاصة وتحقيقها.","التعبير عن الذات جزء أساسي من العمل بالنسبة لي، وليس إضافة.","أحب تحويل الأشياء العادية إلى جميلة: الطعام، المساحات، المظهر.","العمل الخالي من أي لمسة إبداعية يصيبني بالملل بسرعة."],
+fa:["دوست دارم کارم شامل ارتباط مداوم با مردم باشد.","سریع حالت احساسی افراد را متوجه می‌شوم و خودم را با آن تطبیق می‌دهم.","کمک به کسی برای حل مشکلش برایم رضایت‌بخش‌تر از حل تنهایی آن است.","حاضرم یک موضوع را بارها برای افراد مختلف توضیح دهم اگر واقعاً به آن‌ها کمک کند.","کاری که تمام روز تنها بدون تماس با مردم باشم خسته‌ام می‌کند.","برایم آسان است که با افراد تازه‌آشنا اعتماد ایجاد کنم.","اگر مساوی باشد، شغل «با مردم» را به شغل «با کاغذبازی/داده» ترجیح می‌دهم.",
+"از پیدا کردن الگو در اعداد و داده‌ها لذت می‌برم.","تجزیه یک مسئله پیچیده به مراحل منطقی برایم رضایت‌بخش است.","جدول‌ها، گزارش‌ها و آمار مرا نمی‌ترسانند، بلکه جذبم می‌کنند.","ترجیح می‌دهم داده‌ها را بررسی کنم تا اینکه فرض کنم «تقریباً درست است».","به خودکارسازی فرآیندهای روتین از طریق تحلیل داده علاقه دارم.","اشتباهات محاسباتی یا منطقی را سریع‌تر از بیشتر افراد اطرافم متوجه می‌شوم.","ترجیح می‌دهم عصر را با بررسی آمار بگذرانم تا گفتگوی بی‌هدف.",
+"دوست دارم بفهمم سیستم‌های فنی از درون چگونه کار می‌کنند.","ترجیح می‌دهم دفترچه راهنما را بخوانم و خودم چیزی را جدا کنم تا اینکه کس دیگری را صدا بزنم.","کار با تجهیزات یا فناوری به معنای گسترده (شامل سخت‌افزار و سیستم‌های کامپیوتری) برایم جذاب است.","برایم مهم است که نتیجه فیزیکی یا فنی کارم را ببینم.","تنظیم سیستم‌ها، نرم‌افزارها یا تجهیزات کاری است که می‌توانم ساعت‌ها انجام دهم.","ترجیح می‌دهم خودم چیزی را تعمیر یا تنظیم کنم تا به کس دیگری پول بدهم، اگر وقت داشته باشم.","کار با خودرو، ماشین‌آلات یا سیستم‌های کامپیوتری برایم جذاب است.",
+"دوست دارم ایده‌ها و مفاهیم جدید بسازم، حتی اگر اجرای فوری آن‌ها سخت باشد.","اغلب از خودم می‌پرسم «اگر... چه می‌شد» و «چرا اینطور ساخته شده».","فهمیدن ماهیت واقعی چیزها برایم مهم‌تر از صرفاً پیروی از دستورالعمل است.","موضوعاتی را مطالعه می‌کنم نه چون «باید»، بلکه چون واقعاً برایم جالب است.","نظریه‌ها و مدل‌های انتزاعی حتی بدون کاربرد عملی فوری مرا مجذوب می‌کنند.","از یافتن راه‌حل‌های غیرمتعارف برای مشکلات لذت می‌برم.","سؤالات فلسفی و مربوط به جهان‌بینی واقعاً برایم جالب‌اند.",
+"وقتی روزم برنامه و روال مشخصی دارد راحت‌ترم.","تغییرات غیرمنتظره در برنامه‌ها مرا از تعادل خارج می‌کند.","ترجیح می‌دهم از قبل بدانم چه انتظاری از من می‌رود تا اینکه فی‌البداهه عمل کنم.","قوانین و رویه‌های روشن کارم را آسان‌تر می‌کنند، نه آزاردهنده.","لازم دارم وظایف به‌وضوح ساختاریافته باشند، نه اینکه «در حین کار بفهمم».","در محیط پایدار و قابل‌پیش‌بینی بهتر از هرج‌ومرج مداوم کار می‌کنم.","تغییر وظیفه هر ۲۰ دقیقه بیشتر خسته‌ام می‌کند تا اینکه انرژی بدهد.",
+"وقتی مسئول کل فرآیند هستم بدون نظارت مداوم، بازده‌ام بیشتر است.","وقتی تصمیمی باید جمعی گرفته شود نه به‌تنهایی، احساس ناراحتی می‌کنم.","ترجیح می‌دهم خودم مسئله را حل کنم تا اینکه در هر قدم کمک بخواهم.","کار کردن تنها مرا نمی‌ترساند، بلکه آزادی می‌دهد.","برایم مهم است بتوانم بدون تأیید مداوم دیگران تصمیم بگیرم.","از بحث‌های گروهی طولانی زودتر از کار انفرادی خسته می‌شوم.","به نتیجه‌گیری‌های خودم بیشتر از نظر اکثریت اعتماد دارم.",
+"دوست دارم مسئولیت نتیجه‌ی یک گروه را بر عهده بگیرم.","اغلب من کسی هستم که دیگران را سازمان‌دهی و هدایت می‌کند.","در تصمیم‌گیری‌هایی که بر دیگران تأثیر می‌گذارد راحت هستم.","متقاعد کردن و رهبری کردن را به صرفاً اجرای دستورات ترجیح می‌دهم.","نقش «کاپیتان» در یک پروژه برایم جذاب‌تر از نقش مجری است.","وقتی می‌بینم روندی اشتباه پیش می‌رود، به‌راحتی ابتکار عمل به دست می‌گیرم.","برایم مهم است ببینم رهبری‌ام چگونه به تیم در رسیدن به نتیجه کمک می‌کند.",
+"خطاهای کوچکی را متوجه می‌شوم که دیگران از آن غافل می‌مانند.","برایم مهم است همه‌چیز دقیق و بدون خطا انجام شود، حتی اگر کندتر باشد.","بررسی جزئیات و ویرایش خسته‌ام نمی‌کند؛ با آرامش با آن برخورد می‌کنم.","در کار طبق یک پروتکل دقیق که هر جزئیات مهم است راحت‌ترم.","ترجیح می‌دهم کاری را دوباره انجام دهم تا با یک خطای کوچک تحویل دهم.","کاری که نیاز به دقت دارد (اسناد، داده‌ها، کد، دوزها) مرا نمی‌ترساند.","متوجه شدن یک خطا در یک سیستم برایم آسان‌تر از دیدن فوری تصویر کلی است.",
+"کاری را دوست دارم که در آن حرکت کنم، نه اینکه تمام روز بنشینم.","فعالیت بدنی به من انرژی می‌دهد، نه اینکه آن را بگیرد.","کار سرپایی را به کار پشت‌میزی ترجیح می‌دهم.","از نتایجی که به قدرت، استقامت یا چابکی نیاز دارند لذت می‌برم.","ورزش یا تمرین بدنی بخش مهمی از زندگی من است.","کار در فضای باز بیشتر از دفتر کار جذبم می‌کند.","با کار کردن با دست‌ها و بدنم راحتم، نه فقط با ذهنم.","برایم مهم است چیزی زیبا یا بیانگر خلق کنم.","از نقاشی، موسیقی، طراحی یا هر شکل دیگر خلاقیت لذت می‌برم.","زیبایی‌شناسی اطرافم را می‌بینم: رنگ‌ها، فرم‌ها، ترکیب‌بندی.","دوست دارم ایده‌های خلاقانه خودم را بسازم و اجرا کنم.","خودبیانگری برای من بخش اصلی کار است، نه یک امتیاز اضافه.","دوست دارم چیزهای معمولی را زیبا کنم: غذا، فضا، ظاهر.","کاری بدون ذره‌ای خلاقیت خیلی زود برایم خسته‌کننده می‌شود."],
+};
+
+/* ============================================================
+   CAREERS — dims 1-5, ai resilience 1-5, college availability
+   ============================================================ */
+const CAREERS = [
+ {id:"hit", prog:"Health Information Technology", majorId:"hit", dims:{people:2,data:5,things:3,ideas:3,structure:4,independence:3,leadership:2,detail:5,physical:1,creative:1}, ai:4, college:"CRC", collegeVerified:true, transfer:"Health Informatics, Health Services Administration",
+  t:{ru:{name:"Специалист по медицинской информатике",desc:"Работа с медицинскими данными пациентов, кодированием диагнозов и системами учёта в клиниках — на стыке здравоохранения и технологий."},
+     en:{name:"Health Information Technician",desc:"Works with patient data, diagnosis coding, and clinic record systems — where healthcare meets technology."},
+     es:{name:"Técnica en Información de Salud",desc:"Trabaja con datos de pacientes, codificación de diagnósticos y sistemas de registros clínicos — donde la salud se encuentra con la tecnología."},
+     ar:{name:"أخصائية معلوماتية صحية",desc:"تعمل مع بيانات المرضى وترميز التشخيصات وأنظمة السجلات في العيادات — حيث تلتقي الرعاية الصحية بالتقنية."},
+     fa:{name:"متخصص فناوری اطلاعات سلامت",desc:"با داده‌های بیمار، کدگذاری تشخیص و سیستم‌های ثبت در کلینیک‌ها کار می‌کند — جایی که سلامت با فناوری تلاقی می‌کند."}}},
+ {id:"rn", prog:"Nursing", majorId:"nursing", dims:{people:5,data:3,things:4,ideas:2,structure:4,independence:3,leadership:3,detail:5,physical:4,creative:1}, ai:3, college:"ARC / SCC", collegeVerified:true, transfer:"RN-to-BSN programs",
+  t:{ru:{name:"Медсестра/медбрат (RN)",desc:"Непосредственный уход за пациентами, клинические процедуры, координация с врачами."},
+     en:{name:"Registered Nurse",desc:"Direct patient care, clinical procedures, and coordination with physicians."},
+     es:{name:"Enfermera Registrada (RN)",desc:"Atención directa al paciente, procedimientos clínicos y coordinación con médicos."},
+     ar:{name:"ممرضة مسجلة (RN)",desc:"رعاية مباشرة للمرضى، إجراءات سريرية، وتنسيق مع الأطباء."},
+     fa:{name:"پرستار رسمی (RN)",desc:"مراقبت مستقیم از بیمار، اقدامات بالینی و هماهنگی با پزشکان."}}},
+ {id:"ph", prog:"Public Health", majorId:"publichealth", dims:{people:5,data:3,things:1,ideas:4,structure:3,independence:3,leadership:4,detail:3,physical:2,creative:2}, ai:4, college:"all4", collegeVerified:false, transfer:"Public Health (BS/BA) — Sac State, UC Davis",
+  t:{ru:{name:"Координатор программ общественного здоровья",desc:"Разработка и ведение программ здравоохранения на уровне сообщества, работа с грантами и статистикой здоровья населения."},
+     en:{name:"Public Health Program Coordinator",desc:"Designs and runs community health programs, works with grants and population health data."},
+     es:{name:"Coordinadora de Programas de Salud Pública",desc:"Diseña y gestiona programas de salud comunitaria, trabaja con subvenciones y datos de salud poblacional."},
+     ar:{name:"منسقة برامج الصحة العامة",desc:"تصمم وتدير برامج الصحة المجتمعية، وتعمل مع المنح وبيانات صحة السكان."},
+     fa:{name:"هماهنگ‌کننده برنامه‌های سلامت عمومی",desc:"برنامه‌های سلامت جامعه را طراحی و اجرا می‌کند و با کمک‌های مالی و داده‌های سلامت جمعیت کار می‌کند."}}},
+ {id:"hda", prog:"Health Information Technology", majorId:"hit", dims:{people:2,data:5,things:2,ideas:3,structure:4,independence:4,leadership:2,detail:5,physical:1,creative:1}, ai:4, college:"all4", collegeVerified:false, transfer:"Health Informatics, Data Science, Statistics",
+  t:{ru:{name:"Аналитик данных в здравоохранении",desc:"Анализ клинических и операционных данных больниц и страховых систем, построение отчётов и прогнозов."},
+     en:{name:"Healthcare Data Analyst",desc:"Analyzes clinical and operational data for hospitals and insurers, builds reports and forecasts."},
+     es:{name:"Analista de Datos en Salud",desc:"Analiza datos clínicos y operativos de hospitales y aseguradoras, elabora informes y pronósticos."},
+     ar:{name:"محللة بيانات في الرعاية الصحية",desc:"تحلل البيانات السريرية والتشغيلية للمستشفيات وشركات التأمين، وتُعدّ تقارير وتوقعات."},
+     fa:{name:"تحلیل‌گر داده‌های سلامت",desc:"داده‌های بالینی و عملیاتی بیمارستان‌ها و بیمه‌ها را تحلیل می‌کند و گزارش و پیش‌بینی تهیه می‌کند."}}},
+ {id:"advisor", prog:"Psychology", majorId:"psych", dims:{people:5,data:2,things:1,ideas:3,structure:3,independence:3,leadership:3,detail:3,physical:1,creative:2}, ai:3, college:"all4", collegeVerified:false, transfer:"Psychology, Sociology, Education, Public Administration",
+  t:{ru:{name:"Академический/карьерный консультант",desc:"Помощь студентам с образовательным планом, выбором мейджора, навигацией по системе колледжа."},
+     en:{name:"Academic & Career Advisor",desc:"Helps students with education plans, choosing a major, and navigating the college system."},
+     es:{name:"Consejera Académica y Profesional",desc:"Ayuda a estudiantes con su plan educativo, elección de carrera y navegación del sistema universitario."},
+     ar:{name:"مستشارة أكاديمية ومهنية",desc:"تساعد الطلاب في خطتهم التعليمية واختيار التخصص والتنقل في نظام الكلية."},
+     fa:{name:"مشاور تحصیلی و شغلی",desc:"به دانشجویان در برنامه تحصیلی، انتخاب رشته و مسیریابی در سیستم کالج کمک می‌کند."}}},
+ {id:"ar", prog:"Business", majorId:"business", dims:{people:4,data:4,things:2,ideas:2,structure:5,independence:3,leadership:2,detail:5,physical:1,creative:1}, ai:2, college:"all4", collegeVerified:false, transfer:"Business Administration, Public Administration",
+  t:{ru:{name:"Специалист приёмной комиссии и учебных записей",desc:"Обработка заявлений, проверка документов, транскриптов, петиций и записей студентов."},
+     en:{name:"Admissions & Records Specialist",desc:"Processes applications, verifies documents, transcripts, and student petitions."},
+     es:{name:"Especialista en Admisiones y Registros",desc:"Procesa solicitudes, verifica documentos, historiales académicos y peticiones estudiantiles."},
+     ar:{name:"أخصائية القبول والسجلات",desc:"تعالج الطلبات وتتحقق من المستندات والسجلات الأكاديمية وطلبات الطلاب."},
+     fa:{name:"متخصص پذیرش و سوابق تحصیلی",desc:"درخواست‌ها، مدارک، ریزنمرات و درخواست‌های ویژه دانشجویان را بررسی می‌کند."}}},
+ {id:"itadmin", prog:"Computer Information Science", majorId:"cs", dims:{people:2,data:3,things:5,ideas:3,structure:4,independence:4,leadership:2,detail:4,physical:2,creative:1}, ai:3, college:"all4", collegeVerified:false, transfer:"Information Technology, Computer Science",
+  t:{ru:{name:"Системный администратор",desc:"Поддержка серверов, сетей, систем безопасности организации."},
+     en:{name:"IT Systems Administrator",desc:"Maintains servers, networks, and security systems for an organization."},
+     es:{name:"Administradora de Sistemas de TI",desc:"Mantiene servidores, redes y sistemas de seguridad de una organización."},
+     ar:{name:"مديرة أنظمة تقنية المعلومات",desc:"تحافظ على الخوادم والشبكات وأنظمة الأمان لمؤسسة ما."},
+     fa:{name:"مدیر سیستم‌های فناوری اطلاعات",desc:"سرورها، شبکه‌ها و سیستم‌های امنیتی یک سازمان را نگهداری می‌کند."}}},
+ {id:"dev", prog:"Computer Information Science", majorId:"cs", dims:{people:2,data:4,things:4,ideas:5,structure:3,independence:4,leadership:2,detail:4,physical:1,creative:3}, ai:3, college:"all4", collegeVerified:false, transfer:"Computer Science — UC Davis, Sac State",
+  t:{ru:{name:"Разработчик ПО",desc:"Проектирование и написание программ, приложений, систем."},
+     en:{name:"Software Developer",desc:"Designs and builds programs, applications, and systems."},
+     es:{name:"Desarrolladora de Software",desc:"Diseña y construye programas, aplicaciones y sistemas."},
+     ar:{name:"مطورة برمجيات",desc:"تصمم وتبني البرامج والتطبيقات والأنظمة."},
+     fa:{name:"توسعه‌دهنده نرم‌افزار",desc:"برنامه‌ها، اپلیکیشن‌ها و سیستم‌ها را طراحی و می‌سازد."}}},
+ {id:"ds", prog:"Computer Information Science", majorId:"cs", dims:{people:2,data:5,things:3,ideas:5,structure:3,independence:4,leadership:2,detail:4,physical:1,creative:2}, ai:5, college:"all4", collegeVerified:false, transfer:"Data Science, Statistics, Computer Science",
+  t:{ru:{name:"Data Scientist / аналитик ML",desc:"Построение моделей на данных, статистический анализ, машинное обучение — часть самой ИИ-экономики."},
+     en:{name:"Data Scientist / ML Analyst",desc:"Builds models from data, statistical analysis, and machine learning — part of the AI economy itself."},
+     es:{name:"Científica de Datos",desc:"Construye modelos a partir de datos, análisis estadístico y aprendizaje automático — parte de la economía de la IA."},
+     ar:{name:"عالمة بيانات",desc:"تبني نماذج من البيانات، وتُجري تحليلاً إحصائياً وتعلماً آلياً — جزء من اقتصاد الذكاء الاصطناعي نفسه."},
+     fa:{name:"دانشمند داده",desc:"از داده‌ها مدل می‌سازد، تحلیل آماری انجام می‌دهد و در یادگیری ماشین کار می‌کند — بخشی از اقتصاد هوش مصنوعی."}}},
+ {id:"ux", prog:"Art", majorId:"cs", dims:{people:4,data:3,things:3,ideas:5,structure:2,independence:3,leadership:3,detail:4,physical:1,creative:4}, ai:3, college:"all4", collegeVerified:false, transfer:"Design, HCI, Computer Science",
+  t:{ru:{name:"UX/продуктовый дизайнер",desc:"Проектирование интерфейсов и пользовательского опыта цифровых продуктов."},
+     en:{name:"UX / Product Designer",desc:"Designs interfaces and user experience for digital products."},
+     es:{name:"Diseñadora de Producto/UX",desc:"Diseña interfaces y experiencia de usuario para productos digitales."},
+     ar:{name:"مصممة تجربة مستخدم/منتج",desc:"تصمم الواجهات وتجربة المستخدم للمنتجات الرقمية."},
+     fa:{name:"طراح تجربه کاربری/محصول",desc:"رابط‌ها و تجربه کاربری محصولات دیجیتال را طراحی می‌کند."}}},
+ {id:"ops", prog:"Business", majorId:"business", dims:{people:4,data:3,things:2,ideas:3,structure:3,independence:3,leadership:5,detail:3,physical:2,creative:2}, ai:3, college:"all4", collegeVerified:false, transfer:"Business Administration — Sac State, CSUS",
+  t:{ru:{name:"Операционный менеджер",desc:"Управление командами, процессами и ресурсами организации."},
+     en:{name:"Business / Operations Manager",desc:"Manages teams, processes, and resources within an organization."},
+     es:{name:"Gerenta de Operaciones",desc:"Gestiona equipos, procesos y recursos dentro de una organización."},
+     ar:{name:"مديرة عمليات",desc:"تدير الفرق والعمليات والموارد داخل مؤسسة."},
+     fa:{name:"مدیر عملیات کسب‌وکار",desc:"تیم‌ها، فرآیندها و منابع یک سازمان را مدیریت می‌کند."}}},
+ {id:"hr", prog:"Business", majorId:"business", dims:{people:5,data:3,things:1,ideas:2,structure:4,independence:2,leadership:3,detail:4,physical:1,creative:2}, ai:3, college:"all4", collegeVerified:false, transfer:"Business Administration, HR Management",
+  t:{ru:{name:"HR-специалист",desc:"Найм, адаптация сотрудников, кадровая документация, разрешение конфликтов на работе."},
+     en:{name:"Human Resources Specialist",desc:"Handles hiring, onboarding, personnel records, and workplace conflict resolution."},
+     es:{name:"Especialista en Recursos Humanos",desc:"Se encarga de contratación, incorporación, expedientes de personal y resolución de conflictos laborales."},
+     ar:{name:"أخصائية موارد بشرية",desc:"تتولى التوظيف والتهيئة وسجلات الموظفين وحل النزاعات في مكان العمل."},
+     fa:{name:"متخصص منابع انسانی",desc:"استخدام، فرآیند ورود کارکنان، سوابق پرسنلی و حل تعارضات محیط کار را انجام می‌دهد."}}},
+ {id:"pta", prog:"Kinesiology", dims:{people:5,data:2,things:4,ideas:2,structure:4,independence:3,leadership:2,detail:4,physical:5,creative:1}, ai:4, college:"all4", collegeVerified:false, transfer:"Kinesiology, Health Science",
+  t:{ru:{name:"Ассистент физической/трудовой терапии",desc:"Помощь пациентам в реабилитации и восстановлении подвижности."},
+     en:{name:"Occupational/Physical Therapy Assistant",desc:"Helps patients with rehabilitation and regaining mobility."},
+     es:{name:"Asistente de Terapia Física/Ocupacional",desc:"Ayuda a pacientes en su rehabilitación y recuperación de movilidad."},
+     ar:{name:"مساعدة علاج طبيعي/وظيفي",desc:"تساعد المرضى في إعادة التأهيل واستعادة الحركة."},
+     fa:{name:"دستیار کاردرمانی/فیزیوتراپی",desc:"به بیماران در توانبخشی و بازیابی تحرک کمک می‌کند."}}},
+ {id:"auto", prog:"Automotive Technology", dims:{people:2,data:2,things:5,ideas:2,structure:4,independence:3,leadership:2,detail:4,physical:4,creative:2}, ai:4, college:"all4", collegeVerified:false, transfer:"обычно не требуется для практики",
+  t:{ru:{name:"Автомеханик / технический специалист",desc:"Диагностика и ремонт автомобилей и технических систем."},
+     en:{name:"Automotive / Systems Technician",desc:"Diagnoses and repairs vehicles and technical systems."},
+     es:{name:"Técnica Automotriz/de Sistemas",desc:"Diagnostica y repara vehículos y sistemas técnicos."},
+     ar:{name:"فنية سيارات/أنظمة",desc:"تشخص وتصلح المركبات والأنظمة التقنية."},
+     fa:{name:"تکنسین خودرو/سیستم‌های فنی",desc:"خودروها و سیستم‌های فنی را عیب‌یابی و تعمیر می‌کند."}}},
+ {id:"fin", prog:"Accounting", majorId:"business", dims:{people:2,data:5,things:1,ideas:3,structure:5,independence:3,leadership:2,detail:5,physical:1,creative:1}, ai:2, college:"all4", collegeVerified:false, transfer:"Accounting, Finance, Business Administration",
+  t:{ru:{name:"Финансовый аналитик / бухгалтер",desc:"Финансовая отчётность, анализ бюджета, аудит."},
+     en:{name:"Financial Analyst / Accountant",desc:"Handles financial reporting, budget analysis, and audits."},
+     es:{name:"Analista Financiera/Contadora",desc:"Se encarga de informes financieros, análisis de presupuesto y auditorías."},
+     ar:{name:"محللة مالية/محاسبة",desc:"تتولى التقارير المالية وتحليل الميزانية والتدقيق."},
+     fa:{name:"تحلیل‌گر مالی/حسابدار",desc:"گزارش‌های مالی، تحلیل بودجه و حسابرسی را انجام می‌دهد."}}},
+ {id:"teach", prog:"Education/Teaching", dims:{people:5,data:2,things:2,ideas:3,structure:4,independence:2,leadership:4,detail:3,physical:2,creative:3}, ai:4, college:"all4", collegeVerified:false, transfer:"Liberal Studies → Teaching Credential",
+  t:{ru:{name:"Учитель начальной школы / спецобразования",desc:"Обучение и поддержка детей в классе, адаптация программ под нужды учеников."},
+     en:{name:"Elementary / Special Ed Teacher",desc:"Teaches and supports children in the classroom, adapting lessons to student needs."},
+     es:{name:"Maestra de Primaria/Educación Especial",desc:"Enseña y apoya a niños en el aula, adaptando las lecciones a sus necesidades."},
+     ar:{name:"معلمة ابتدائي/تربية خاصة",desc:"تُدرّس وتدعم الأطفال في الصف، وتكيّف الدروس حسب احتياجات الطلاب."},
+     fa:{name:"معلم ابتدایی/آموزش استثنایی",desc:"در کلاس به کودکان آموزش و حمایت می‌دهد و درس‌ها را با نیازهای آن‌ها تطبیق می‌دهد."}}},
+ {id:"sw", prog:"Social Work/Human Services", majorId:"socwork", dims:{people:5,data:2,things:1,ideas:3,structure:3,independence:3,leadership:3,detail:3,physical:2,creative:2}, ai:4, college:"all4", collegeVerified:false, transfer:"Social Work (BSW), Sociology, Psychology",
+  t:{ru:{name:"Социальный работник / кейс-менеджер",desc:"Поддержка людей в кризисных ситуациях, координация социальных услуг."},
+     en:{name:"Social Worker / Case Manager",desc:"Supports people through crises and coordinates social services."},
+     es:{name:"Trabajadora Social/Gestora de Casos",desc:"Apoya a las personas en momentos de crisis y coordina servicios sociales."},
+     ar:{name:"أخصائية اجتماعية/مديرة حالات",desc:"تدعم الأشخاص في الأزمات وتنسق الخدمات الاجتماعية."},
+     fa:{name:"مددکار اجتماعی/مدیر پرونده",desc:"از افراد در بحران حمایت می‌کند و خدمات اجتماعی را هماهنگ می‌کند."}}},
+ {id:"cyber", prog:"Computer Information Science", majorId:"cs", dims:{people:2,data:4,things:4,ideas:4,structure:4,independence:4,leadership:2,detail:5,physical:1,creative:2}, ai:5, college:"all4", collegeVerified:false, transfer:"Cybersecurity, Computer Science, Information Technology",
+  t:{ru:{name:"Аналитик кибербезопасности",desc:"Защита систем и данных организации от кибератак, мониторинг угроз — критическая и растущая потребность."},
+     en:{name:"Cybersecurity Analyst",desc:"Protects an organization's systems and data from cyberattacks — a critical and growing need."},
+     es:{name:"Analista de Ciberseguridad",desc:"Protege los sistemas y datos de una organización contra ciberataques — una necesidad crítica y creciente."},
+     ar:{name:"محللة أمن سيبراني",desc:"تحمي أنظمة وبيانات المؤسسة من الهجمات السيبرانية — حاجة حرجة ومتنامية."},
+     fa:{name:"تحلیل‌گر امنیت سایبری",desc:"سیستم‌ها و داده‌های سازمان را از حملات سایبری محافظت می‌کند — نیازی حیاتی و رو به رشد."}}},
+ {id:"kines", prog:"Kinesiology", dims:{people:4,data:2,things:2,ideas:2,structure:3,independence:3,leadership:3,detail:2,physical:5,creative:2}, ai:4, college:"all4", collegeVerified:false, transfer:"Kinesiology — Sac State",
+  t:{ru:{name:"Тренер / специалист по кинезиологии",desc:"Тренировки, реабилитация через движение и спортивная подготовка."},en:{name:"Fitness Coach / Kinesiology Specialist",desc:"Training, movement-based rehab, and athletic conditioning."},es:{name:"Entrenadora / Especialista en Kinesiología",desc:"Entrenamiento, rehabilitación por movimiento y preparación física."},ar:{name:"مدربة لياقة / أخصائية علم الحركة",desc:"التدريب وإعادة التأهيل بالحركة والإعداد الرياضي."},fa:{name:"مربی تناسب اندام / متخصص حرکت‌شناسی",desc:"تمرین، توان‌بخشی حرکتی و آمادگی ورزشی."}}},
+ {id:"artist", prog:"Art", dims:{people:2,data:2,things:2,ideas:5,structure:2,independence:4,leadership:2,detail:3,physical:1,creative:5}, ai:3, college:"all4", collegeVerified:false, transfer:"Art, Design — CSU/UC",
+  t:{ru:{name:"Художник / графический дизайнер",desc:"Иллюстрация, брендинг и визуальные образы для медиа и продуктов."},en:{name:"Artist / Graphic Designer",desc:"Illustration, branding, and visuals for media and products."},es:{name:"Artista / Diseñadora Gráfica",desc:"Ilustración, branding y visuales para medios y productos."},ar:{name:"فنانة / مصممة جرافيك",desc:"الرسم والهوية البصرية والمرئيات للإعلام والمنتجات."},fa:{name:"هنرمند / طراح گرافیک",desc:"تصویرسازی، برندینگ و بصری‌سازی برای رسانه و محصولات."}}},
+ {id:"musician", prog:"Music", dims:{people:3,data:1,things:2,ideas:4,structure:2,independence:4,leadership:2,detail:3,physical:2,creative:5}, ai:3, college:"all4", collegeVerified:false, transfer:"Music — CSU/UC",
+  t:{ru:{name:"Музыкант / преподаватель музыки",desc:"Исполнение, создание музыки и обучение других."},en:{name:"Musician / Music Educator",desc:"Performing, creating music, and teaching others."},es:{name:"Música / Educadora Musical",desc:"Interpretar, crear música y enseñar a otros."},ar:{name:"موسيقية / معلمة موسيقى",desc:"العزف وصناعة الموسيقى وتعليم الآخرين."},fa:{name:"موسیقی‌دان / مدرس موسیقی",desc:"اجرا، ساخت موسیقی و آموزش دیگران."}}},
+ {id:"chef", prog:"Culinary Arts Management", dims:{people:3,data:2,things:4,ideas:3,structure:4,independence:3,leadership:3,detail:4,physical:4,creative:4}, ai:4, college:"CRC", collegeVerified:false, transfer:"Hospitality Management",
+  t:{ru:{name:"Шеф-повар / кулинарный менеджер",desc:"Кухня, меню, управление командой и качеством в ресторане."},en:{name:"Chef / Culinary Manager",desc:"Kitchen craft, menus, and leading a restaurant team."},es:{name:"Chef / Gerenta Culinaria",desc:"Cocina, menús y liderazgo de un equipo de restaurante."},ar:{name:"شيف / مديرة طهي",desc:"المطبخ والقوائم وقيادة فريق المطعم."},fa:{name:"سرآشپز / مدیر آشپزخانه",desc:"آشپزی، منو و رهبری تیم رستوران."}}},
+ {id:"welder", prog:"Welding", dims:{people:1,data:2,things:5,ideas:2,structure:4,independence:3,leadership:1,detail:4,physical:5,creative:2}, ai:5, college:"ARC / CRC", collegeVerified:false, transfer:"обычно не требуется для практики",
+  t:{ru:{name:"Сварщик / специалист рабочих профессий",desc:"Сварка и металлоконструкции — востребованное ремесло с ощутимым результатом."},en:{name:"Welder / Skilled Trades Professional",desc:"Welding and metalwork — an in-demand craft with tangible results."},es:{name:"Soldadora / Profesional de Oficios",desc:"Soldadura y metalurgia — un oficio demandado con resultados tangibles."},ar:{name:"لحّامة / مهنية حرف يدوية",desc:"اللحام وأعمال المعادن — حرفة مطلوبة بنتائج ملموسة."},fa:{name:"جوشکار / متخصص حرفه‌های فنی",desc:"جوشکاری و فلزکاری — حرفه‌ای پرتقاضا با نتیجه ملموس."}}},
+ {id:"constrmgr", prog:"Construction Management Technology", dims:{people:3,data:3,things:4,ideas:2,structure:4,independence:3,leadership:4,detail:3,physical:4,creative:1}, ai:4, college:"CRC", collegeVerified:false, transfer:"Construction Management",
+  t:{ru:{name:"Менеджер строительных проектов",desc:"Организация стройки: люди, сроки, бюджет, контроль качества."},en:{name:"Construction Manager",desc:"Running job sites: people, schedules, budgets, quality."},es:{name:"Gerenta de Construcción",desc:"Dirigir obras: personas, plazos, presupuestos y calidad."},ar:{name:"مديرة مشاريع بناء",desc:"إدارة مواقع البناء: الأشخاص والجداول والميزانيات والجودة."},fa:{name:"مدیر پروژه ساختمانی",desc:"مدیریت کارگاه: افراد، زمان‌بندی، بودجه و کیفیت."}}},
+ {id:"firefighter", prog:"Fire Technology", dims:{people:4,data:2,things:4,ideas:2,structure:4,independence:2,leadership:3,detail:3,physical:5,creative:1}, ai:5, college:"ARC / CRC", collegeVerified:false, transfer:"Fire Science",
+  t:{ru:{name:"Пожарный",desc:"Тушение пожаров, спасательные операции, помощь при ЧС."},en:{name:"Firefighter",desc:"Fire suppression, rescue operations, and emergency response."},es:{name:"Bombera",desc:"Extinción de incendios, rescates y respuesta a emergencias."},ar:{name:"إطفائية",desc:"إخماد الحرائق وعمليات الإنقاذ والاستجابة للطوارئ."},fa:{name:"آتش‌نشان",desc:"اطفای حریق، عملیات نجات و واکنش اضطراری."}}},
+ {id:"police", prog:"Administration of Justice", dims:{people:4,data:3,things:3,ideas:2,structure:5,independence:2,leadership:3,detail:3,physical:4,creative:1}, ai:4, college:"ARC / SCC / FLC", collegeVerified:false, transfer:"Criminal Justice — Sac State",
+  t:{ru:{name:"Сотрудник правоохранительных органов",desc:"Обеспечение порядка, расследования, работа с сообществом."},en:{name:"Law Enforcement Officer",desc:"Public safety, investigations, and community work."},es:{name:"Oficial de Justicia Penal",desc:"Seguridad pública, investigaciones y trabajo comunitario."},ar:{name:"ضابطة إنفاذ قانون",desc:"السلامة العامة والتحقيقات والعمل المجتمعي."},fa:{name:"افسر اجرای قانون",desc:"امنیت عمومی، تحقیقات و کار با جامعه."}}},
+ {id:"paralegal", prog:"Paralegal Studies", dims:{people:3,data:4,things:1,ideas:2,structure:5,independence:3,leadership:2,detail:5,physical:1,creative:1}, ai:3, college:"ARC", collegeVerified:false, transfer:"Legal Studies, Political Science",
+  t:{ru:{name:"Параюрист (Paralegal)",desc:"Подготовка юридических документов, исследование дел, поддержка юристов."},en:{name:"Paralegal",desc:"Preparing legal documents, case research, and supporting attorneys."},es:{name:"Asistente Legal (Paralegal)",desc:"Preparación de documentos legales, investigación de casos y apoyo a abogados."},ar:{name:"مساعدة قانونية",desc:"إعداد المستندات القانونية وبحث القضايا ودعم المحامين."},fa:{name:"دستیار حقوقی",desc:"تهیه اسناد حقوقی، تحقیق پرونده و پشتیبانی وکلا."}}},
+ {id:"vettech", prog:"Veterinary Technology", dims:{people:3,data:3,things:4,ideas:2,structure:4,independence:3,leadership:2,detail:4,physical:4,creative:1}, ai:4, college:"CRC", collegeVerified:false, transfer:"Animal Science",
+  t:{ru:{name:"Ветеринарный техник",desc:"Уход за животными, ассистирование ветеринару, лабораторные процедуры."},en:{name:"Veterinary Technician",desc:"Animal care, assisting veterinarians, and lab procedures."},es:{name:"Técnica Veterinaria",desc:"Cuidado animal, asistencia al veterinario y procedimientos de laboratorio."},ar:{name:"فنية بيطرية",desc:"رعاية الحيوانات ومساعدة الطبيب البيطري والإجراءات المخبرية."},fa:{name:"تکنسین دامپزشکی",desc:"مراقبت از حیوانات، دستیاری دامپزشک و کارهای آزمایشگاهی."}}},
+ {id:"agrospec", prog:"Horticulture", dims:{people:2,data:3,things:4,ideas:3,structure:3,independence:4,leadership:2,detail:3,physical:5,creative:2}, ai:4, college:"ARC / CRC", collegeVerified:false, transfer:"Plant Science, Agriculture Business",
+  t:{ru:{name:"Специалист по агрономии / садоводству",desc:"Растениеводство, ландшафт, питомники и агробизнес."},en:{name:"Horticulture / Agriculture Specialist",desc:"Plants, landscaping, nurseries, and agribusiness."},es:{name:"Especialista en Horticultura / Agricultura",desc:"Plantas, paisajismo, viveros y agronegocio."},ar:{name:"أخصائية بستنة / زراعة",desc:"النباتات وتنسيق الحدائق والمشاتل والأعمال الزراعية."},fa:{name:"متخصص باغبانی / کشاورزی",desc:"گیاهان، محوطه‌سازی، نهالستان و کسب‌وکار کشاورزی."}}},
+ {id:"pilot", prog:"Aviation", dims:{people:2,data:4,things:5,ideas:2,structure:5,independence:3,leadership:3,detail:5,physical:3,creative:1}, ai:4, college:"SCC", collegeVerified:false, transfer:"Aeronautics",
+  t:{ru:{name:"Пилот / авиационный специалист",desc:"Управление воздушным судном, диспетчеризация, авиационные операции."},en:{name:"Pilot / Aviation Professional",desc:"Flying aircraft, dispatch, and aviation operations."},es:{name:"Piloto / Profesional de Aviación",desc:"Pilotar aeronaves, despacho y operaciones de aviación."},ar:{name:"طيارة / مهنية طيران",desc:"قيادة الطائرات والإرسال وعمليات الطيران."},fa:{name:"خلبان / متخصص هوانوردی",desc:"پرواز با هواپیما، دیسپچینگ و عملیات هوانوردی."}}},
+ {id:"journalist", prog:"Journalism", dims:{people:4,data:3,things:1,ideas:4,structure:2,independence:4,leadership:2,detail:3,physical:2,creative:4}, ai:2, college:"ARC / SCC / CRC", collegeVerified:false, transfer:"Journalism, Communication",
+  t:{ru:{name:"Журналист / медиаспециалист",desc:"Репортажи, интервью и создание контента для медиа."},en:{name:"Journalist / Media Professional",desc:"Reporting, interviews, and creating media content."},es:{name:"Periodista / Profesional de Medios",desc:"Reportajes, entrevistas y creación de contenido."},ar:{name:"صحفية / مهنية إعلام",desc:"التقارير والمقابلات وصناعة المحتوى الإعلامي."},fa:{name:"روزنامه‌نگار / متخصص رسانه",desc:"گزارش، مصاحبه و تولید محتوای رسانه‌ای."}}},
+ {id:"photographer", prog:"Photography", dims:{people:2,data:2,things:4,ideas:4,structure:2,independence:5,leadership:2,detail:3,physical:3,creative:5}, ai:3, college:"ARC / SCC / CRC", collegeVerified:false, transfer:"Photography, Design",
+  t:{ru:{name:"Фотограф / визуальный специалист",desc:"Съёмка, обработка и визуальный сторителлинг."},en:{name:"Photographer / Visual Media Specialist",desc:"Shooting, editing, and visual storytelling."},es:{name:"Fotógrafa / Especialista Visual",desc:"Fotografía, edición y narrativa visual."},ar:{name:"مصورة / أخصائية مرئيات",desc:"التصوير والتحرير والسرد البصري."},fa:{name:"عکاس / متخصص رسانه بصری",desc:"عکاسی، ویرایش و روایت بصری."}}},
+ {id:"actor", prog:"Theatre Arts", dims:{people:4,data:1,things:2,ideas:4,structure:2,independence:3,leadership:3,detail:2,physical:4,creative:5}, ai:4, college:"ARC / SCC / FLC", collegeVerified:false, transfer:"Theatre Arts",
+  t:{ru:{name:"Актёр / артист театра",desc:"Сцена, спектакли, перформанс и работа с публикой."},en:{name:"Actor / Theatre Artist",desc:"Stage, productions, performance, and audiences."},es:{name:"Actriz / Artista de Teatro",desc:"Escenario, producciones, performance y público."},ar:{name:"ممثلة / فنانة مسرح",desc:"الخشبة والعروض والأداء والجمهور."},fa:{name:"بازیگر / هنرمند تئاتر",desc:"صحنه، نمایش، اجرا و ارتباط با تماشاگر."}}},
+ {id:"fashiondes", prog:"Fashion", dims:{people:3,data:2,things:3,ideas:4,structure:3,independence:3,leadership:2,detail:5,physical:2,creative:5}, ai:3, college:"ARC / SCC", collegeVerified:false, transfer:"Fashion Design & Merchandising",
+  t:{ru:{name:"Дизайнер одежды",desc:"Создание коллекций, конструирование и мерчандайзинг моды."},en:{name:"Fashion Designer",desc:"Creating collections, garment construction, and merchandising."},es:{name:"Diseñadora de Moda",desc:"Creación de colecciones, confección y merchandising."},ar:{name:"مصممة أزياء",desc:"تصميم المجموعات وبناء الملابس والتسويق."},fa:{name:"طراح مد",desc:"خلق کلکسیون، دوخت و مرچندایزینگ مد."}}},
+ {id:"interiordes", prog:"Interior Design", dims:{people:4,data:2,things:3,ideas:4,structure:3,independence:4,leadership:2,detail:4,physical:2,creative:5}, ai:3, college:"ARC", collegeVerified:false, transfer:"Interior Design",
+  t:{ru:{name:"Дизайнер интерьеров",desc:"Проектирование пространств: планировка, свет, материалы, стиль."},en:{name:"Interior Designer",desc:"Designing spaces: layout, light, materials, style."},es:{name:"Diseñadora de Interiores",desc:"Diseño de espacios: distribución, luz, materiales y estilo."},ar:{name:"مصممة ديكور داخلي",desc:"تصميم المساحات: التوزيع والإضاءة والمواد والأسلوب."},fa:{name:"طراح داخلی",desc:"طراحی فضا: چیدمان، نور، متریال و سبک."}}},
+ {id:"labsci", prog:"Chemistry", dims:{people:1,data:5,things:4,ideas:4,structure:4,independence:3,leadership:1,detail:5,physical:2,creative:1}, ai:3, college:"all4", collegeVerified:false, transfer:"Chemistry, Biology",
+  t:{ru:{name:"Лабораторный специалист / химик",desc:"Анализы, эксперименты и контроль качества в лаборатории."},en:{name:"Lab Scientist / Chemistry Technician",desc:"Analysis, experiments, and quality control in the lab."},es:{name:"Científica de Laboratorio / Técnica Química",desc:"Análisis, experimentos y control de calidad en laboratorio."},ar:{name:"عالمة مختبر / فنية كيمياء",desc:"التحاليل والتجارب ومراقبة الجودة في المختبر."},fa:{name:"کارشناس آزمایشگاه / تکنسین شیمی",desc:"تحلیل، آزمایش و کنترل کیفیت در آزمایشگاه."}}},
+ {id:"envtech", prog:"Environmental Technology", dims:{people:2,data:4,things:4,ideas:3,structure:3,independence:3,leadership:2,detail:4,physical:4,creative:1}, ai:4, college:"FLC", collegeVerified:false, transfer:"Environmental Science",
+  t:{ru:{name:"Специалист по экологии",desc:"Мониторинг среды, пробы и соблюдение экологических норм."},en:{name:"Environmental Technician",desc:"Environmental monitoring, sampling, and compliance."},es:{name:"Técnica Ambiental",desc:"Monitoreo ambiental, muestreo y cumplimiento normativo."},ar:{name:"فنية بيئية",desc:"مراقبة البيئة وأخذ العينات والامتثال."},fa:{name:"تکنسین محیط‌زیست",desc:"پایش محیط، نمونه‌برداری و رعایت مقررات."}}},
+ {id:"cosmetologist", prog:"Cosmetology", dims:{people:5,data:1,things:3,ideas:3,structure:3,independence:3,leadership:2,detail:3,physical:4,creative:5}, ai:4, college:"SCC", collegeVerified:false, transfer:"обычно не требуется для практики",
+  t:{ru:{name:"Косметолог / стилист / барбер",desc:"Стрижки, уход, образ — творческая работа с людьми."},en:{name:"Cosmetologist / Stylist / Barber",desc:"Hair, care, and image — creative work with people."},es:{name:"Cosmetóloga / Estilista / Barbera",desc:"Cabello, cuidado e imagen — trabajo creativo con personas."},ar:{name:"خبيرة تجميل / مصففة",desc:"الشعر والعناية والمظهر — عمل إبداعي مع الناس."},fa:{name:"متخصص زیبایی / آرایشگر",desc:"مو، مراقبت و استایل — کاری خلاقانه با مردم."}}},
+ {id:"dentalhyg", prog:"Dental Hygiene", dims:{people:5,data:2,things:4,ideas:1,structure:5,independence:2,leadership:1,detail:5,physical:3,creative:1}, ai:4, college:"SCC", collegeVerified:false, transfer:"Dental Hygiene (BS)",
+  t:{ru:{name:"Стоматологический гигиенист",desc:"Профессиональная чистка, профилактика и обучение пациентов."},en:{name:"Dental Hygienist",desc:"Professional cleanings, prevention, and patient education."},es:{name:"Higienista Dental",desc:"Limpiezas profesionales, prevención y educación del paciente."},ar:{name:"أخصائية صحة أسنان",desc:"التنظيف الاحترافي والوقاية وتثقيف المرضى."},fa:{name:"بهداشت‌کار دندان",desc:"جرم‌گیری حرفه‌ای، پیشگیری و آموزش بیمار."}}},
+ {id:"emt", prog:"Emergency Medical Technology", dims:{people:5,data:2,things:4,ideas:2,structure:4,independence:2,leadership:3,detail:4,physical:5,creative:1}, ai:5, college:"ARC / CRC", collegeVerified:false, transfer:"Paramedic, Fire Science",
+  t:{ru:{name:"Парамедик / EMT",desc:"Экстренная медицинская помощь на выезде, работа в скорой."},en:{name:"EMT / Paramedic",desc:"Emergency medical response in the field and ambulance work."},es:{name:"Paramédica / EMT",desc:"Respuesta médica de emergencia en campo y ambulancia."},ar:{name:"مسعفة طوارئ",desc:"الاستجابة الطبية الطارئة في الميدان وعمل الإسعاف."},fa:{name:"تکنسین فوریت‌های پزشکی",desc:"امداد پزشکی اورژانسی در محل و کار در آمبولانس."}}},
+ {id:"realtor", prog:"Real Estate", dims:{people:5,data:3,things:1,ideas:2,structure:2,independence:5,leadership:3,detail:3,physical:2,creative:2}, ai:3, college:"all4", collegeVerified:false, transfer:"Business, Real Estate",
+  t:{ru:{name:"Риелтор",desc:"Продажа и аренда недвижимости, работа с клиентами и сделками."},en:{name:"Real Estate Agent",desc:"Selling and leasing property, clients, and deals."},es:{name:"Agente Inmobiliaria",desc:"Venta y alquiler de propiedades, clientes y transacciones."},ar:{name:"وكيلة عقارات",desc:"بيع وتأجير العقارات والعملاء والصفقات."},fa:{name:"مشاور املاک",desc:"فروش و اجاره ملک، مشتریان و معاملات."}}},
+ {id:"hvactech", prog:"Heating, Ventilation, and Air Conditioning", dims:{people:2,data:2,things:5,ideas:2,structure:4,independence:4,leadership:1,detail:4,physical:5,creative:1}, ai:5, college:"SCC", collegeVerified:false, transfer:"обычно не требуется для практики",
+  t:{ru:{name:"Техник HVAC / промышленное обслуживание",desc:"Монтаж и ремонт климатических и промышленных систем."},en:{name:"HVAC / Industrial Maintenance Technician",desc:"Installing and repairing climate and industrial systems."},es:{name:"Técnica HVAC / Mantenimiento Industrial",desc:"Instalación y reparación de sistemas de clima e industriales."},ar:{name:"فنية تكييف / صيانة صناعية",desc:"تركيب وإصلاح أنظمة التكييف والأنظمة الصناعية."},fa:{name:"تکنسین تهویه / نگهداری صنعتی",desc:"نصب و تعمیر سیستم‌های تهویه و صنعتی."}}},
+ {id:"ece2", prog:"Early Childhood Education", dims:{people:5,data:1,things:2,ideas:3,structure:4,independence:2,leadership:3,detail:2,physical:3,creative:4}, ai:4, college:"all4", collegeVerified:false, transfer:"Child Development — Sac State",
+  t:{ru:{name:"Педагог раннего развития (ECE)",desc:"Работа с детьми дошкольного возраста: развитие, игра, обучение."},en:{name:"Early Childhood Educator (ECE)",desc:"Working with young children: development, play, and learning."},es:{name:"Educadora de Primera Infancia (ECE)",desc:"Trabajo con niños pequeños: desarrollo, juego y aprendizaje."},ar:{name:"معلمة طفولة مبكرة",desc:"العمل مع الأطفال الصغار: النمو واللعب والتعلم."},fa:{name:"مربی کودکان خردسال (ECE)",desc:"کار با کودکان خردسال: رشد، بازی و یادگیری."}}},
+];
+
+const COLLEGE_NAMES = {ARC:"American River College","ARC / SCC":"American River College / Sacramento City College", SCC:"Sacramento City College", CRC:"Cosumnes River College", FLC:"Folsom Lake College", all4:"ARC · SCC · CRC · FLC"};
+
+const COLLEGE_LINKS = {
+ ARC:"https://arc.losrios.edu/2025-2026-official-catalog/programs-of-study/list-of-degrees-and-certificates",
+ SCC:"https://scc.losrios.edu/2025-2026-official-catalog/programs-of-study/list-of-degrees-and-certificates",
+ CRC:"https://crc.losrios.edu/2025-2026-official-catalog/programs-of-study/list-of-degrees-and-certificates",
+ FLC:"https://flc.losrios.edu/2025-2026-official-catalog/programs-of-study/list-of-degrees-and-certificates",
+};
+
+/* Build a direct link to a program's page on a college site, opening the
+   "Degrees and Certificates" tab (?tab=2). Pattern verified by user:
+   https://flc.losrios.edu/academics/programs-majors/administration-of-justice?tab=2
+   Slugs are generated from the program name; a few unusual names may not
+   match the college's actual slug — those will 404 and can be hand-fixed. */
+function programSlug(name){
+  return name
+    .toLowerCase()
+    .replace(/\(.*?\)/g, "")        // drop parenthetical parts: "(ESL)", "(CNC)"
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")     // slashes, commas, spaces -> hyphen
+    .replace(/^-+|-+$/g, "");
+}
+const SLUG_OVERRIDES = { "public-health":"health-education" };
+function programURL(collegeCode, programName){
+  let slug = programSlug(programName);
+  if(SLUG_OVERRIDES[slug]) slug = SLUG_OVERRIDES[slug];
+  return `https://${collegeCode.toLowerCase()}.losrios.edu/academics/programs-majors/${slug}?tab=2`;
+}
+
+function collegeCodesFromField(str){
+  if(str==="all4") return ["ARC","SCC","CRC","FLC"];
+  return str.split("/").map(s=>s.trim()).filter(Boolean);
+}
+
+/* ============================================================
+   EDU_UI — strings for the scraped-requirements Education section
+   ============================================================ */
+const EDU_UI = {
+ru:{search:"Найти программу (например, Nursing)...", count:(n)=>`${n} программ`, creds:(n)=>`${n} ${n===1?"квалификация":n<5?"квалификации":"квалификаций"}`,
+  snapshot:(d)=>`Снимок требований с официальных страниц колледжей (собрано ${d}). Данные не обновляются в реальном времени — перед записью и подачей петиций сверяйся с counselor'ом и официальной страницей программы (ссылки ниже).`,
+  source:"Официальная страница программы →", unitsLabel:"юнитов", coursesLabel:"Курсы",
+  noCourses:"Список курсов не опубликован на странице — смотри официальную страницу программы.",
+  admission:"Приём в программу:", noData:"Файл данных (data.js) не загрузился — раздел временно недоступен.",
+  empty:"Ничего не найдено — попробуй другое название (поиск на английском, как в каталоге)."},
+en:{search:"Search a program (e.g. Nursing)...", count:(n)=>`${n} programs`, creds:(n)=>`${n} credential${n===1?"":"s"}`,
+  snapshot:(d)=>`Snapshot of requirements from the colleges' official program pages (collected ${d}). Not synced in real time — verify with a counselor and the official program page (linked below) before registering or filing petitions.`,
+  source:"Official program page →", unitsLabel:"units", coursesLabel:"Courses",
+  noCourses:"No course list published on the page — see the official program page.",
+  admission:"Program admission:", noData:"The data file (data.js) failed to load — this section is temporarily unavailable.",
+  empty:"Nothing found — try a different name (search in English, as in the catalog)."},
+es:{search:"Buscar un programa (p. ej. Nursing)...", count:(n)=>`${n} programas`, creds:(n)=>`${n} ${n===1?"credencial":"credenciales"}`,
+  snapshot:(d)=>`Captura de los requisitos desde las páginas oficiales de los colegios (recopilada el ${d}). No se sincroniza en tiempo real — verifica con un consejero y la página oficial del programa (enlaces abajo) antes de inscribirte o presentar peticiones.`,
+  source:"Página oficial del programa →", unitsLabel:"unidades", coursesLabel:"Cursos",
+  noCourses:"La página no publica la lista de cursos — consulta la página oficial del programa.",
+  admission:"Admisión al programa:", noData:"El archivo de datos (data.js) no se cargó — esta sección no está disponible temporalmente.",
+  empty:"No se encontró nada — prueba otro nombre (busca en inglés, como en el catálogo)."},
+ar:{search:"ابحثي عن برنامج (مثل Nursing)...", count:(n)=>`${n} برنامجاً`, creds:(n)=>`${n} ${n===1?"مؤهل":"مؤهلات"}`,
+  snapshot:(d)=>`لقطة من المتطلبات مأخوذة من الصفحات الرسمية للكليات (جُمعت في ${d}). لا تتحدث آنياً — تحققي مع المستشارة ومن الصفحة الرسمية للبرنامج (الروابط أدناه) قبل التسجيل أو تقديم الطلبات.`,
+  source:"الصفحة الرسمية للبرنامج ←", unitsLabel:"وحدة", coursesLabel:"المقررات",
+  noCourses:"قائمة المقررات غير منشورة على الصفحة — راجعي الصفحة الرسمية للبرنامج.",
+  admission:"القبول في البرنامج:", noData:"تعذّر تحميل ملف البيانات (data.js) — هذا القسم غير متاح مؤقتاً.",
+  empty:"لا توجد نتائج — جرّبي اسماً آخر (البحث بالإنجليزية كما في الكتالوج)."},
+fa:{search:"جستجوی برنامه (مثلاً Nursing)...", count:(n)=>`${n} برنامه`, creds:(n)=>`${n} مدرک`,
+  snapshot:(d)=>`تصویری از الزامات از صفحات رسمی کالج‌ها (جمع‌آوری ${d}). به‌صورت زنده به‌روزرسانی نمی‌شود — پیش از ثبت‌نام یا ارسال درخواست با مشاور و صفحه رسمی برنامه (پیوندها در پایین) بررسی کن.`,
+  source:"صفحه رسمی برنامه ←", unitsLabel:"واحد", coursesLabel:"دروس",
+  noCourses:"فهرست دروس در صفحه منتشر نشده — صفحه رسمی برنامه را ببین.",
+  admission:"پذیرش برنامه:", noData:"فایل داده (data.js) بارگذاری نشد — این بخش موقتاً در دسترس نیست.",
+  empty:"چیزی یافت نشد — نام دیگری را امتحان کن (جستجو به انگلیسی، مانند کاتالوگ)."},
+};
+function eduT(){ return EDU_UI[state.lang] || EDU_UI.en; }
+
+/* ============================================================
+   GOAL — the student's educational goal, asked as the first test
+   step in plain words. Drives which credential type (a few
+   classes / certificate / associate degree / transfer degree)
+   is recommended next to each career match.
+   ============================================================ */
+const GOAL_KEYS = ["classes","certificate","degree","transfer"];
+const GOAL_UI = {
+en:{tag:"Your goal", title:"One quick question first: what do you want to get out of college?", hint:"Pick the closest one — you can retake the test anytime.",
+  opts:{classes:{l:"Just a class or two",d:"Pick up a specific skill without enrolling in a full program"},
+        certificate:{l:"A certificate",d:"A short, job-focused program — often under a year"},
+        degree:{l:"A full college degree (A.A. / A.S.)",d:"Finish community college with an associate degree"},
+        transfer:{l:"Transfer to a university",d:"Start at Los Rios, then transfer to a UC or CSU for a bachelor's"}},
+  recLabel:"For your goal", recClasses:"start with 1–2 intro courses in", recOpen:"see courses",
+  recFallback:"closest published option — this program lists no exact match for your goal, verify on the program page",
+  goalChip:{classes:"a class or two",certificate:"certificate",degree:"associate degree",transfer:"university transfer"}},
+ru:{tag:"Твоя цель", title:"Сначала один быстрый вопрос: что ты хочешь получить от колледжа?", hint:"Выбери самое близкое — тест можно пересдать в любой момент.",
+  opts:{classes:{l:"Пара отдельных курсов",d:"Освоить конкретный навык без полной программы"},
+        certificate:{l:"Сертификат",d:"Короткая практичная программа — часто меньше года"},
+        degree:{l:"Полный диплом колледжа (A.A. / A.S.)",d:"Закончить колледж со степенью associate"},
+        transfer:{l:"Перевод в университет",d:"Начать в Los Rios, затем перевестись в UC или CSU на бакалавра"}},
+  recLabel:"Под твою цель", recClasses:"начни с 1–2 вводных курсов по программе", recOpen:"смотреть курсы",
+  recFallback:"ближайший опубликованный вариант — точного под твою цель у программы нет, сверься со страницей программы",
+  goalChip:{classes:"пара курсов",certificate:"сертификат",degree:"диплом associate",transfer:"перевод в университет"}},
+es:{tag:"Tu meta", title:"Primero una pregunta rápida: ¿qué quieres lograr en el colegio?", hint:"Elige lo más cercano — puedes repetir el test cuando quieras.",
+  opts:{classes:{l:"Solo una o dos clases",d:"Aprender una habilidad concreta sin un programa completo"},
+        certificate:{l:"Un certificado",d:"Un programa corto y práctico — a menudo menos de un año"},
+        degree:{l:"Un título completo (A.A. / A.S.)",d:"Terminar el colegio comunitario con un título de asociado"},
+        transfer:{l:"Transferirme a una universidad",d:"Empezar en Los Rios y transferirte a una UC o CSU para la licenciatura"}},
+  recLabel:"Para tu meta", recClasses:"empieza con 1–2 cursos introductorios de", recOpen:"ver cursos",
+  recFallback:"la opción publicada más cercana — el programa no tiene una exacta para tu meta, verifica en la página del programa",
+  goalChip:{classes:"una o dos clases",certificate:"certificado",degree:"título de asociado",transfer:"transferencia"}},
+ar:{tag:"هدفك", title:"سؤال سريع أولاً: ماذا تريدين من الكلية؟", hint:"اختاري الأقرب — يمكنك إعادة الاختبار في أي وقت.",
+  opts:{classes:{l:"مقرر أو اثنان فقط",d:"اكتساب مهارة محددة دون برنامج كامل"},
+        certificate:{l:"شهادة مهنية",d:"برنامج قصير عملي — غالباً أقل من سنة"},
+        degree:{l:"درجة كلية كاملة (A.A. / A.S.)",d:"إنهاء كلية المجتمع بدرجة الزمالة"},
+        transfer:{l:"التحويل إلى جامعة",d:"البدء في Los Rios ثم التحويل إلى UC أو CSU للبكالوريوس"}},
+  recLabel:"لهدفك", recClasses:"ابدئي بمقرر أو مقررين تمهيديين في", recOpen:"عرض المقررات",
+  recFallback:"أقرب خيار منشور — لا يوجد خيار مطابق تماماً لهدفك، تحققي من صفحة البرنامج",
+  goalChip:{classes:"مقرر أو اثنان",certificate:"شهادة",degree:"درجة الزمالة",transfer:"تحويل جامعي"}},
+fa:{tag:"هدف تو", title:"اول یک سؤال سریع: از کالج چه می‌خواهی؟", hint:"نزدیک‌ترین را انتخاب کن — آزمون را هر وقت خواستی می‌توانی دوباره بدهی.",
+  opts:{classes:{l:"فقط یکی دو درس",d:"یادگیری یک مهارت مشخص بدون برنامه کامل"},
+        certificate:{l:"گواهینامه",d:"برنامه کوتاه و کاربردی — اغلب کمتر از یک سال"},
+        degree:{l:"مدرک کامل کالج (A.A. / A.S.)",d:"اتمام کالج با مدرک کاردانی"},
+        transfer:{l:"انتقال به دانشگاه",d:"شروع در Los Rios و سپس انتقال به UC یا CSU برای کارشناسی"}},
+  recLabel:"برای هدف تو", recClasses:"با ۱–۲ درس مقدماتی شروع کن در", recOpen:"دیدن دروس",
+  recFallback:"نزدیک‌ترین گزینه منتشرشده — گزینه دقیق برای هدف تو ندارد، صفحه برنامه را بررسی کن",
+  goalChip:{classes:"یکی دو درس",certificate:"گواهینامه",degree:"مدرک کاردانی",transfer:"انتقال به دانشگاه"}},
+};
+function gt(){ return GOAL_UI[state.lang] || GOAL_UI.en; }
+
+/* Advisor connection strings (the advisor calls the Claude API directly
+   from the browser; on claude.ai the call is proxied, elsewhere the
+   student pastes their own API key, stored only on this device). */
+const ADVISOR_UI = {
+en:{keyTitle:"Set up AI advisor access", keyPrompt:"Paste your Anthropic API key (starts with sk-ant-). It is stored only in this browser, never sent anywhere except api.anthropic.com. Leave empty to remove the saved key.",
+  keySaved:"API key saved on this device.", keyRemoved:"API key removed.",
+  errAuth:"The advisor needs an API key to work outside claude.ai. Click the key button (🔑) next to the message box and paste your Anthropic API key.",
+  errRate:"Rate limit reached — wait a minute and try again.",
+  errOverloaded:"The AI service is temporarily overloaded — try again in a moment.",
+  errGeneric:"The AI service returned an error. Try again; if it persists, re-check your API key (🔑).",
+  errNet:"Connection error. Check your internet connection and try again."},
+ru:{keyTitle:"Настроить доступ AI-адвайзера", keyPrompt:"Вставь свой API-ключ Anthropic (начинается с sk-ant-). Он хранится только в этом браузере и отправляется только на api.anthropic.com. Оставь пустым, чтобы удалить сохранённый ключ.",
+  keySaved:"API-ключ сохранён на этом устройстве.", keyRemoved:"API-ключ удалён.",
+  errAuth:"Вне claude.ai адвайзеру нужен API-ключ. Нажми кнопку с ключом (🔑) рядом с полем ввода и вставь свой ключ Anthropic.",
+  errRate:"Достигнут лимит запросов — подожди минуту и попробуй снова.",
+  errOverloaded:"Сервис ИИ временно перегружен — попробуй чуть позже.",
+  errGeneric:"Сервис ИИ вернул ошибку. Попробуй ещё раз; если повторяется — проверь API-ключ (🔑).",
+  errNet:"Ошибка соединения. Проверь интернет и попробуй снова."},
+es:{keyTitle:"Configurar acceso del asesor IA", keyPrompt:"Pega tu clave API de Anthropic (empieza con sk-ant-). Se guarda solo en este navegador y solo se envía a api.anthropic.com. Déjalo vacío para eliminar la clave guardada.",
+  keySaved:"Clave API guardada en este dispositivo.", keyRemoved:"Clave API eliminada.",
+  errAuth:"Fuera de claude.ai el asesor necesita una clave API. Pulsa el botón de la llave (🔑) junto al cuadro de mensaje y pega tu clave de Anthropic.",
+  errRate:"Límite de solicitudes alcanzado — espera un minuto e inténtalo de nuevo.",
+  errOverloaded:"El servicio de IA está temporalmente sobrecargado — inténtalo en un momento.",
+  errGeneric:"El servicio de IA devolvió un error. Inténtalo de nuevo; si persiste, revisa tu clave API (🔑).",
+  errNet:"Error de conexión. Revisa tu internet e inténtalo de nuevo."},
+ar:{keyTitle:"إعداد وصول المستشار الذكي", keyPrompt:"الصقي مفتاح Anthropic API الخاص بك (يبدأ بـ sk-ant-). يُحفظ في هذا المتصفح فقط ولا يُرسل إلا إلى api.anthropic.com. اتركيه فارغاً لحذف المفتاح المحفوظ.",
+  keySaved:"تم حفظ مفتاح API على هذا الجهاز.", keyRemoved:"تم حذف مفتاح API.",
+  errAuth:"خارج claude.ai يحتاج المستشار إلى مفتاح API. اضغطي زر المفتاح (🔑) بجانب مربع الرسالة والصقي مفتاح Anthropic الخاص بك.",
+  errRate:"تم بلوغ حد الطلبات — انتظري دقيقة وحاولي مجدداً.",
+  errOverloaded:"خدمة الذكاء الاصطناعي مثقلة مؤقتاً — حاولي بعد قليل.",
+  errGeneric:"أعادت خدمة الذكاء الاصطناعي خطأ. حاولي مجدداً؛ وإن استمر تحققي من مفتاح API ‏(🔑).",
+  errNet:"خطأ في الاتصال. تحققي من الإنترنت وحاولي مجدداً."},
+fa:{keyTitle:"راه‌اندازی دسترسی مشاور هوش مصنوعی", keyPrompt:"کلید API آنتروپیک خود را وارد کن (با sk-ant- شروع می‌شود). فقط در این مرورگر ذخیره می‌شود و فقط به api.anthropic.com ارسال می‌شود. برای حذف کلید ذخیره‌شده خالی بگذار.",
+  keySaved:"کلید API روی این دستگاه ذخیره شد.", keyRemoved:"کلید API حذف شد.",
+  errAuth:"خارج از claude.ai مشاور به کلید API نیاز دارد. دکمه کلید (🔑) کنار کادر پیام را بزن و کلید آنتروپیک خود را وارد کن.",
+  errRate:"به سقف درخواست‌ها رسیدی — یک دقیقه صبر کن و دوباره امتحان کن.",
+  errOverloaded:"سرویس هوش مصنوعی موقتاً شلوغ است — کمی بعد دوباره امتحان کن.",
+  errGeneric:"سرویس هوش مصنوعی خطا برگرداند. دوباره امتحان کن؛ اگر ادامه داشت کلید API را بررسی کن (🔑).",
+  errNet:"خطای اتصال. اینترنت را بررسی کن و دوباره امتحان کن."},
+};
+function advT(){ return ADVISOR_UI[state.lang] || ADVISOR_UI.en; }
+
+/* Share test results by email (mailto:, no third-party service — the
+   summary never leaves the student's device except into their own
+   mail client) or copy to clipboard. */
+const EMAIL_UI = {
+en:{email:"📧 Email my results", copy:"⧉ Copy results", subject:"My Compass career test results",
+  copied:"Results copied — paste them anywhere.", testDate:"Test date", traits:"Strongest traits", matches:"Top career matches", forGoal:"For my goal", details:"Full details and course lists", verify:"This is a snapshot from a self-assessment tool — verify any plan with a Los Rios counselor."},
+ru:{email:"📧 Отправить результаты на почту", copy:"⧉ Скопировать результаты", subject:"Мои результаты карьерного теста Compass",
+  copied:"Результаты скопированы — вставь их куда угодно.", testDate:"Дата теста", traits:"Самые сильные стороны", matches:"Топ карьерных совпадений", forGoal:"Под мою цель", details:"Подробности и списки курсов", verify:"Это снимок из инструмента самооценки — любой план сверяй с counselor'ом Los Rios."},
+es:{email:"📧 Enviar mis resultados por correo", copy:"⧉ Copiar resultados", subject:"Mis resultados del test de carrera Compass",
+  copied:"Resultados copiados — pégalos donde quieras.", testDate:"Fecha del test", traits:"Rasgos más fuertes", matches:"Mejores coincidencias", forGoal:"Para mi meta", details:"Detalles completos y listas de cursos", verify:"Esto es una captura de una herramienta de autoevaluación — verifica cualquier plan con un consejero de Los Rios."},
+ar:{email:"📧 إرسال نتائجي بالبريد", copy:"⧉ نسخ النتائج", subject:"نتائج اختبار المهنة Compass الخاصة بي",
+  copied:"تم نسخ النتائج — الصقيها أينما شئت.", testDate:"تاريخ الاختبار", traits:"أقوى السمات", matches:"أفضل التطابقات المهنية", forGoal:"لهدفي", details:"التفاصيل الكاملة وقوائم المقررات", verify:"هذه لقطة من أداة تقييم ذاتي — تحققي من أي خطة مع مستشارة Los Rios."},
+fa:{email:"📧 ارسال نتایج به ایمیل", copy:"⧉ کپی نتایج", subject:"نتایج آزمون شغلی Compass من",
+  copied:"نتایج کپی شد — هر جا خواستی جای‌گذاری کن.", testDate:"تاریخ آزمون", traits:"قوی‌ترین ویژگی‌ها", matches:"بهترین تطابق‌های شغلی", forGoal:"برای هدف من", details:"جزئیات کامل و فهرست دروس", verify:"این تصویری از یک ابزار خودارزیابی است — هر برنامه را با مشاور Los Rios بررسی کن."},
+};
+function emT(){ return EMAIL_UI[state.lang] || EMAIL_UI.en; }
+
+/* Compact plain-text summary of the results — kept short so it survives
+   mailto: URL length limits in desktop mail clients (~1500 chars). */
+function buildResultsSummary(){
+  if(!state.results) return "";
+  const {scores, matches} = state.results;
+  const L = emT();
+  const lines = [];
+  lines.push("Compass — Los Rios career & education navigator");
+  lines.push(L.testDate + ": " + (state.lastTestDate ? state.lastTestDate.slice(0,10) : new Date().toISOString().slice(0,10)));
+  if(state.goal) lines.push(gt().tag + ": " + gt().goalChip[state.goal]);
+  lines.push("");
+  lines.push(L.traits + ": " + topDims(scores,3).map(d=>tf(DIMENSIONS[d])+" ("+scores[d].toFixed(1)+"/5)").join(", "));
+  lines.push("");
+  lines.push(L.matches + ":");
+  matches.slice(0,5).forEach((c,i)=>{
+    let line = (i+1) + ". " + tf(c.t).name + " — " + c.pct + "% (" + (COLLEGE_NAMES[c.college]||c.college) + ")";
+    const rec = recommendPath(c, state.goal);
+    if(rec && rec.cred) line += "\n   " + L.forGoal + ": " + rec.cred.title + ((rec.cred.units!==undefined&&rec.cred.units!==null) ? " · " + rec.cred.units + " " + eduT().unitsLabel : "") + " · " + rec.site.college;
+    lines.push(line);
+  });
+  lines.push("");
+  lines.push(L.details + ": " + location.href.split("#")[0].split("?")[0]);
+  lines.push(L.verify);
+  return lines.join("\n");
+}
+
+/* Career prog name -> page name on the college sites, where they differ */
+const PROG_PAGE_ALIASES = {"Public Health":"Health Education"};
+
+/* Pick the credential that fits the student's goal for a career's
+   program, from the scraped PROGRAM_REQUIREMENTS data. Prefers the
+   career's own college(s); falls back to the closest published
+   credential (flagged) so we never invent one. */
+function recommendPath(career, goal){
+  if(typeof PROGRAM_REQUIREMENTS==="undefined" || !goal) return null;
+  const target = PROG_PAGE_ALIASES[career.prog] || career.prog;
+  /* exact page-name match wins; substring match ("Nursing" ->
+     "Nursing and Allied Health") is only a fallback so that e.g.
+     "Business" never resolves to "Agriculture Business" */
+  let entries = eduIndex().filter(e=> e.name===target);
+  if(!entries.length) entries = eduIndex().filter(e=> e.name.toLowerCase().includes(target.toLowerCase()));
+  if(!entries.length) return {none:true};
+  const prefCols = career.college==="all4" ? [] : collegeCodesFromField(career.college||"");
+  const sites=[];
+  entries.forEach(e=> e.sites.forEach(s=> sites.push({...s, progName:e.name})));
+  sites.sort((a,b)=> (prefCols.includes(a.college)?0:1) - (prefCols.includes(b.college)?0:1));
+  if(goal==="classes") return {classes:true, site:sites[0]};
+  const want =
+    goal==="transfer"    ? (c)=> c.type && c.type.indexOf("-T")>=0
+    : goal==="degree"    ? (c)=> c.type==="AA"||c.type==="AS"||c.type==="AA/AS"
+    : /* certificate */    (c)=> c.type==="Certificate";
+  for(const s of sites){ const c=(s.credentials||[]).find(want); if(c) return {cred:c, site:s}; }
+  for(const s of sites){ if(s.credentials && s.credentials.length) return {cred:s.credentials[0], site:s, fallback:true}; }
+  return {none:true};
+}
+
+/* Merged view of PROGRAM_REQUIREMENTS (data.js): program name ->
+   per-college entries. Programs whose pages list no degrees or
+   certificates (course-only/administrative pages) are hidden here —
+   they are still recorded in PROGRAM_REQUIREMENTS.failures or with
+   empty credentials for honesty. */
+let EDU_INDEX_CACHE = null;
+function eduIndex(){
+  if(EDU_INDEX_CACHE) return EDU_INDEX_CACHE;
+  const map = new Map();
+  if(typeof PROGRAM_REQUIREMENTS !== "undefined"){
+    Object.entries(PROGRAM_REQUIREMENTS.colleges).forEach(([col, cd])=>{
+      cd.programs.forEach(p=>{
+        if(!p.credentials || !p.credentials.length) return;
+        if(!map.has(p.name)) map.set(p.name, []);
+        map.get(p.name).push({college: col, url: p.url, credentials: p.credentials});
+      });
+    });
+  }
+  EDU_INDEX_CACHE = [...map.entries()]
+    .map(([name, sites])=>({name, sites}))
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  return EDU_INDEX_CACHE;
+}
+
+/* Sandboxed environments (like the Claude artifact viewer) often block
+   opening external links. Try to open; if blocked, copy the URL to the
+   clipboard and tell the user, instead of failing silently. */
+function openExternal(url){
+  let opened = null;
+  try { opened = window.open(url, "_blank", "noopener,noreferrer"); } catch(e){ opened = null; }
+  if(!opened){
+    const fallback = ()=>{
+      try{
+        const ta = document.createElement("textarea");
+        ta.value = url; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); document.body.removeChild(ta);
+        showToast(t().linkCopied);
+      }catch(e){ showToast(url); }
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(()=>showToast(t().linkCopied)).catch(fallback);
+    } else { fallback(); }
+  }
+}
+let toastTimer = null;
+function showToast(msg){
+  let el = document.getElementById("appToast");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "appToast";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove("show"), 3500);
+}
+
+function collegeLinksHTML(str, progName){
+  return collegeCodesFromField(str).map(code=>{
+    const u = progName ? programURL(code, progName) : COLLEGE_LINKS[code];
+    return `<a href="${u}" class="college-link" data-ext="${u}">${code}</a>`;
+  }).join(" ");
+}
+
+/* Global click interceptor for all external links */
+document.addEventListener("click", (e)=>{
+  const a = e.target.closest("a[data-ext]");
+  if(a){
+    e.preventDefault();
+    openExternal(a.getAttribute("data-ext"));
+  }
+}, true);
+
+/* ============================================================
+   MAJORS (hand-curated, 8 entries) was replaced by the full scraped
+   dataset PROGRAM_REQUIREMENTS in data.js — see renderEducation().
+   ============================================================ */
+/* ============================================================
+   ALL_PROGRAMS — precise list scraped directly from each college's
+   official "List of Programs" catalog page (2025-2026 / 2026-2027
+   preview). Names are kept EXACTLY as published by each college.
+   Entries are merged across colleges ONLY when the name string is
+   IDENTICAL — if two colleges use slightly different names for a
+   similar subject (e.g. "Communication" vs "Communication Studies"),
+   they are kept as separate rows, exactly as the colleges name them.
+   Pure administrative/service listings (Library, Student Government,
+   Work Experience, Honors, course sequences) are excluded since they
+   are not standalone majors or certificates.
+   ai = directional automation-resilience estimate (1-5), not official.
+
+   degreeTypes: sourced from the official district-wide "Los Rios
+   Programs and Majors" reference document (AA/AAT/AS/AST/Certificate
+   legend). IMPORTANT LIMITATION: this source is DISTRICT-LEVEL — it
+   lists which credential types exist SOMEWHERE in Los Rios for that
+   field, not necessarily at every specific college tagged above.
+   degreeApprox:true means the name match to that source was close
+   but not identical (so treat the credential list as indicative).
+   degreeTypes:null means no confident match was found in that
+   source — verify directly on the specific college's program page.
+   ============================================================ */
+const ALL_PROGRAMS = [
+ {name:"Accounting", colleges:["ARC","SCC","CRC","FLC"], ai:2, degreeTypes:["AA","AS","Certificate"]},
+ {name:"Administration of Justice", colleges:["ARC","SCC","FLC"], ai:4, degreeTypes:["AA","AA-T","AS","AS-T","Certificate"]},
+ {name:"Advertising/Public Relations", colleges:["CRC"], ai:3, degreeTypes:["AA"]},
+ {name:"Agriculture", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Agriculture Business", colleges:["CRC"], ai:4, degreeTypes:["AS","AS-T","Certificate"]},
+ {name:"Air Traffic Control", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Aircraft Maintenance Technician Program", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Allied Health", colleges:["SCC","CRC","FLC"], ai:4, degreeTypes:null},
+ {name:"Animal Science", colleges:["CRC"], ai:4, degreeTypes:["AS"]},
+ {name:"Anthropology", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","AS","Certificate"]},
+ {name:"Apprenticeship", colleges:["ARC"], ai:5, degreeTypes:["AA","Certificate"]},
+ {name:"Architecture", colleges:["CRC"], ai:3, degreeTypes:["AS","Certificate"]},
+ {name:"Architecture Design Technology", colleges:["CRC"], ai:3, degreeTypes:["AS","Certificate"]},
+ {name:"Art", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"], degreeApprox:true},
+ {name:"Art History", colleges:["ARC","SCC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"], degreeApprox:true},
+ {name:"Art New Media", colleges:["ARC"], ai:3, degreeTypes:null},
+ {name:"Artificial Intelligence", colleges:["FLC"], ai:5, degreeTypes:null},
+ {name:"ASL-English Interpreting", colleges:["ARC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Astronomy", colleges:["ARC","SCC","FLC"], ai:3, degreeTypes:["AS"]},
+ {name:"Automotive Collision Technology", colleges:["ARC"], ai:5, degreeTypes:["AS","Certificate"]},
+ {name:"Automotive Technology", colleges:["ARC"], ai:5, degreeTypes:["AS","Certificate"]},
+ {name:"Automotive Mechanics Technology", colleges:["CRC"], ai:5, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Aviation", colleges:["SCC"], ai:4, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Barbering", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Biology", colleges:["SCC","CRC","FLC"], ai:3, degreeTypes:["AS","AS-T","Certificate"], degreeApprox:true},
+ {name:"Biology and Biotechnology", colleges:["ARC"], ai:3, degreeTypes:["AS","AS-T","Certificate"]},
+ {name:"Biomedical Equipment Technology", colleges:["ARC"], ai:4, degreeTypes:null},
+ {name:"Broadcast Journalism", colleges:["CRC"], ai:3, degreeTypes:["AA"]},
+ {name:"Building Inspection Technology", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Business", colleges:["ARC","SCC","CRC","FLC"], ai:2, degreeTypes:["AA","AS","AS-T","Certificate"]},
+ {name:"Business Technology", colleges:["ARC","FLC"], ai:2, degreeTypes:["AA","Certificate"]},
+ {name:"Cardiovascular Technologist", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Chemistry", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AS","Certificate"]},
+ {name:"Communication", colleges:["ARC","SCC"], ai:3, degreeTypes:["AA","AA-T","Certificate"], degreeApprox:true},
+ {name:"Communication Studies", colleges:["CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"Community Healthcare Worker", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Community Leadership Development", colleges:["SCC"], ai:3, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Community Services Education", colleges:["ARC","CRC"], ai:3, degreeTypes:[]},
+ {name:"Computer Information Science", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AS","Certificate"]},
+ {name:"Computer Numerical Control (CNC) Manufacturing", colleges:["SCC"], ai:5, degreeTypes:null},
+ {name:"Construction", colleges:["CRC"], ai:5, degreeTypes:["AS","Certificate"]},
+ {name:"Construction Management Technology", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Cosmetology", colleges:["SCC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Culinary Arts Management", colleges:["CRC"], ai:4, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Dance", colleges:["ARC","FLC"], ai:3, degreeTypes:["AA"]},
+ {name:"Deaf Culture & ASL Studies", colleges:["ARC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Deaf Culture and American Sign Language Studies", colleges:["SCC","CRC","FLC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Dental Assisting", colleges:["SCC"], ai:4, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Dental Hygiene", colleges:["SCC"], ai:4, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Design and Digital Media", colleges:["SCC"], ai:3, degreeTypes:["AA","AS","Certificate"], degreeApprox:true},
+ {name:"Design and Engineering Technology", colleges:["ARC"], ai:3, degreeTypes:["AA","AS","Certificate"]},
+ {name:"Diagnostic Medical Sonography", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Diesel/Clean Diesel Technology", colleges:["ARC"], ai:5, degreeTypes:["AS","Certificate"]},
+ {name:"Digital Media", colleges:["CRC"], ai:3, degreeTypes:["AA","AS","Certificate"], degreeApprox:true},
+ {name:"Early Childhood Education", colleges:["ARC","SCC","CRC","FLC"], ai:4, degreeTypes:["AA","AS-T","Certificate"]},
+ {name:"Economics", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T"]},
+ {name:"Education/Teaching", colleges:["ARC","SCC","CRC","FLC"], ai:4, degreeTypes:["AA","AA-T"]},
+ {name:"Electrician Trainee Program", colleges:["ARC"], ai:5, degreeTypes:null},
+ {name:"Electronics Technology", colleges:["ARC","SCC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Emergency Medical Technology", colleges:["ARC","CRC"], ai:5, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Emergency Services", colleges:["FLC"], ai:5, degreeTypes:["Certificate"], degreeApprox:true},
+ {name:"Energy", colleges:["ARC"], ai:4, degreeTypes:["Certificate"]},
+ {name:"Engineering", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AS"]},
+ {name:"Engineering Design Technology", colleges:["SCC"], ai:3, degreeTypes:["AA","AS","Certificate"], degreeApprox:true},
+ {name:"English", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"English as a Second Language", colleges:["ARC","CRC","FLC"], ai:3, degreeTypes:["Certificate"]},
+ {name:"English as a Second Language (ESL)", colleges:["SCC"], ai:3, degreeTypes:["Certificate"]},
+ {name:"English as a Second Language Noncredit", colleges:["SCC"], ai:3, degreeTypes:null},
+ {name:"Environmental Technology", colleges:["FLC"], ai:4, degreeTypes:["Certificate"]},
+ {name:"Ethnic Studies", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Family and Consumer Science", colleges:["CRC"], ai:3, degreeTypes:["AA","AS"]},
+ {name:"Fashion", colleges:["ARC","SCC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Film and Media Studies", colleges:["CRC"], ai:3, degreeTypes:["AA"]},
+ {name:"Film/Digital Cinema Production", colleges:["CRC"], ai:3, degreeTypes:["AA"]},
+ {name:"Fire Technology", colleges:["ARC","CRC"], ai:5, degreeTypes:["AA","AS","Certificate"]},
+ {name:"French", colleges:["FLC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Funeral Service Education", colleges:["ARC"], ai:5, degreeTypes:["AS"]},
+ {name:"General Education", colleges:["CRC","FLC"], ai:3, degreeTypes:["AA","AS","Certificate"]},
+ {name:"General Education - Transfer", colleges:["ARC","SCC"], ai:3, degreeTypes:["AA","AS","Certificate"], degreeApprox:true},
+ {name:"General Science", colleges:["ARC","CRC","FLC"], ai:3, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Geography", colleges:["SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","AS","Certificate"], degreeApprox:true},
+ {name:"Geography and GIS", colleges:["ARC"], ai:3, degreeTypes:["AA","AA-T","AS","Certificate"]},
+ {name:"Geology", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AS","AS-T"]},
+ {name:"Gerontology", colleges:["ARC","SCC"], ai:4, degreeTypes:["AA","AS","Certificate"]},
+ {name:"Global Studies", colleges:["ARC","SCC","FLC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Health Education", colleges:["ARC","SCC","CRC","FLC"], ai:4, degreeTypes:["AS-T"]},
+ {name:"Health Information Technology", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Healthcare Interpreting", colleges:["ARC"], ai:4, degreeTypes:["Certificate"]},
+ {name:"Heating, Ventilation, and Air Conditioning", colleges:["SCC"], ai:5, degreeTypes:null},
+ {name:"History", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","AS","Certificate"]},
+ {name:"Hmong", colleges:["CRC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Homeland Security", colleges:["ARC"], ai:4, degreeTypes:["Certificate"]},
+ {name:"Horticulture", colleges:["ARC","CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Hospitality Management", colleges:["ARC"], ai:3, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Human Services", colleges:["SCC"], ai:4, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Human/Career Development", colleges:["SCC","CRC","FLC"], ai:3, degreeTypes:[]},
+ {name:"Humanities", colleges:["SCC","CRC","FLC"], ai:3, degreeTypes:["AA"]},
+ {name:"Humanities and Religious Studies", colleges:["ARC"], ai:3, degreeTypes:["AA"], degreeApprox:true},
+ {name:"Imaging", colleges:["FLC"], ai:4, degreeTypes:["Certificate"]},
+ {name:"Industrial Maintenance Mechanic Technician", colleges:["SCC"], ai:5, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Interdisciplinary Studies", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"Interior Design", colleges:["ARC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"International Studies", colleges:["SCC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Journalism", colleges:["ARC","SCC","CRC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"Kinesiology", colleges:["SCC","CRC","FLC"], ai:4, degreeTypes:["AA","AA-T","AS","AS-T","Certificate"], degreeApprox:true},
+ {name:"Kinesiology and Athletics", colleges:["ARC"], ai:4, degreeTypes:["AA","AA-T","AS","AS-T","Certificate"]},
+ {name:"Law, Public Policy, and Society", colleges:["SCC"], ai:3, degreeTypes:null},
+ {name:"Legal Studies", colleges:["ARC","SCC"], ai:3, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Liberal Arts", colleges:["CRC"], ai:3, degreeTypes:["AA","AS"]},
+ {name:"Management", colleges:["ARC","CRC","FLC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Manufacturing and Industrial Technology", colleges:["FLC"], ai:5, degreeTypes:null},
+ {name:"Marketing", colleges:["ARC","CRC","FLC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Mathematics and Statistics", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AS","AS-T"]},
+ {name:"Mechanical-Electrical Technology", colleges:["SCC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Medical Assisting", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Medical Technology", colleges:["FLC"], ai:4, degreeTypes:["AS"]},
+ {name:"Modern Making", colleges:["SCC","CRC","FLC"], ai:3, degreeTypes:["Certificate"]},
+ {name:"Music", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"Natural Resources", colleges:["ARC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Nursing", colleges:["SCC","FLC"], ai:4, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Nursing and Allied Health", colleges:["ARC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Nutrition", colleges:["CRC","FLC"], ai:3, degreeTypes:["AA","AS","AS-T","Certificate"], degreeApprox:true},
+ {name:"Nutrition and Food Science", colleges:["SCC"], ai:3, degreeTypes:["AA","AS","AS-T","Certificate"], degreeApprox:true},
+ {name:"Nutrition and Foods", colleges:["ARC"], ai:3, degreeTypes:["AA","AS","AS-T","Certificate"], degreeApprox:true},
+ {name:"Occupational and Environmental Health and Safety", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Occupational Therapy Assisting", colleges:["SCC"], ai:4, degreeTypes:["AS"], degreeApprox:true},
+ {name:"Optical Technology", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Paralegal Studies", colleges:["ARC"], ai:3, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Paramedic", colleges:["ARC"], ai:5, degreeTypes:["AS","Certificate"], degreeApprox:true},
+ {name:"Pharmacy Technology", colleges:["CRC"], ai:3, degreeTypes:["AS"]},
+ {name:"Philosophy", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T"]},
+ {name:"Photography", colleges:["ARC","SCC","CRC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Physical Science", colleges:["FLC"], ai:3, degreeTypes:["AS"]},
+ {name:"Physical Therapist Assistant", colleges:["SCC"], ai:4, degreeTypes:["AS"], degreeApprox:true},
+ {name:"Physics", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AS","AS-T"]},
+ {name:"Plant Science", colleges:["CRC"], ai:4, degreeTypes:null},
+ {name:"Political Science", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T"]},
+ {name:"Project Management", colleges:["FLC"], ai:3, degreeTypes:["Certificate"]},
+ {name:"Psychology", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T"]},
+ {name:"Public Health", colleges:["ARC","SCC","CRC","FLC"], ai:4, degreeTypes:["AS-T"], degreeApprox:true},
+ {name:"Radio Production", colleges:["CRC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Radio, Television and Film Production", colleges:["CRC"], ai:3, degreeTypes:["AS-T"]},
+ {name:"Radiology Technology", colleges:["FLC"], ai:4, degreeTypes:null},
+ {name:"Railroad Operations", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Real Estate", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Recreation", colleges:["ARC","SCC","CRC"], ai:3, degreeTypes:["AA"]},
+ {name:"Respiratory Care", colleges:["ARC"], ai:4, degreeTypes:["AS"]},
+ {name:"Science", colleges:["CRC"], ai:3, degreeTypes:["AS","Certificate"]},
+ {name:"Sign Language Studies", colleges:["FLC"], ai:3, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Social Justice Studies", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:null},
+ {name:"Social Science", colleges:["ARC","CRC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Social Work and Chemical Dependency", colleges:["ARC"], ai:4, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Social Work and Community Studies", colleges:["SCC"], ai:4, degreeTypes:["AA","Certificate"], degreeApprox:true},
+ {name:"Social Work/Human Services", colleges:["CRC","FLC"], ai:4, degreeTypes:["AA","Certificate"]},
+ {name:"Sociology", colleges:["ARC","SCC","CRC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"Spanish", colleges:["CRC","FLC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Speech-Language Pathology", colleges:["ARC"], ai:4, degreeTypes:["AS"], degreeApprox:true},
+ {name:"Surgical Technology", colleges:["CRC"], ai:4, degreeTypes:null},
+ {name:"Surveying (Geomatics)", colleges:["SCC"], ai:4, degreeTypes:null},
+ {name:"Television Production", colleges:["CRC"], ai:3, degreeTypes:["AA","Certificate"]},
+ {name:"Theatre Arts", colleges:["ARC","SCC","FLC"], ai:3, degreeTypes:["AA","AA-T","Certificate"]},
+ {name:"Theatre Arts Film", colleges:["ARC","SCC"], ai:3, degreeTypes:["AA","AA-T","Certificate"], degreeApprox:true},
+ {name:"Theatre Arts Performance", colleges:["ARC"], ai:3, degreeTypes:["AA","AA-T","Certificate"], degreeApprox:true},
+ {name:"Theatre and Dance Arts", colleges:["CRC"], ai:3, degreeTypes:["AA","AA-T","Certificate"], degreeApprox:true},
+ {name:"Veterinary Technology", colleges:["CRC"], ai:4, degreeTypes:["AS","Certificate"]},
+ {name:"Vietnamese", colleges:["CRC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+ {name:"Viticulture", colleges:["FLC"], ai:4, degreeTypes:["AS"]},
+ {name:"Welding", colleges:["CRC"], ai:5, degreeTypes:["AS","Certificate"]},
+ {name:"Welding Technology", colleges:["ARC"], ai:5, degreeTypes:["AS","Certificate"]},
+ {name:"Women and Gender Studies", colleges:["SCC"], ai:3, degreeTypes:["AA"]},
+ {name:"World Languages", colleges:["ARC","SCC"], ai:3, degreeTypes:["AA","AA-T"], degreeApprox:true},
+];
+
+/* ============================================================
+   STATE + PERSISTENCE
+   ============================================================ */
+let state = {
+  lang: "en",
+  screen: "dash",
+  qIndex: 0,
+  answers: {},
+  results: null,
+  lastTestDate: null,
+  checklist: {}, // "majorId:courseIdx" -> true
+  advisorMessages: [],
+  advisorLoading: false,
+  goal: null,
+  apiKey: null,
+  openMajor: null,
+  loaded: false,
+  catalogSearch: "",
+  catalogCollege: "all",
+  eduSearch: "",
+  eduCollege: "all",
+  calendarSearch: "",
+  pendingAttachment: null,
+};
+
+async function loadPersisted(){
+  try{
+    const r = await window.storage.get("compass_state");
+    if(r && r.value){
+      const saved = JSON.parse(r.value);
+      state = {...state, ...saved, screen: saved.results ? "dash" : "dash", advisorMessages: saved.advisorMessages||[], advisorLoading:false};
+    }
+  }catch(e){ /* no saved state yet */ }
+  state.loaded = true;
+  render();
+}
+let saveTimer=null;
+function persist(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      const slimMessages = state.advisorMessages.map(m=>{
+        if(Array.isArray(m.content)){
+          const tb = m.content.find(b=>b.type==="text");
+          return {role:m.role, content: tb ? tb.text : "", attachmentName: m.attachmentName};
+        }
+        return m;
+      });
+      const toSave = {lang:state.lang, goal:state.goal, apiKey:state.apiKey, answers:state.answers, results:state.results, lastTestDate:state.lastTestDate, checklist:state.checklist, advisorMessages:slimMessages};
+      await window.storage.set("compass_state", JSON.stringify(toSave));
+    }catch(e){}
+  }, 400);
+}
+
+function t(){ return UI[state.lang]; }
+function isRTL(){ return !!RTL[state.lang]; }
+function tf(obj){ return obj[state.lang] || obj.en || obj.ru; }
+
+/* ============================================================
+   SCORING
+   ============================================================ */
+function computeResults(){
+  const sums={}, counts={};
+  DIM_KEYS.forEach(d=>{sums[d]=0;counts[d]=0;});
+  Q_DIMS.forEach((d,i)=>{ const v=state.answers[i]; if(v!=null){ sums[d]+=v; counts[d]++; } });
+  const scores={};
+  DIM_KEYS.forEach(d=> scores[d] = counts[d] ? sums[d]/counts[d] : 3);
+
+  /* Profile-SHAPE matching (centered Pearson correlation), not raw
+     Euclidean distance. Students cluster around 3-4 on the answer
+     scale, so with raw distance the careers with mid-range profiles
+     (generalists) sat closest to almost everyone and kept winning,
+     while sharply-profiled careers (Welder, EMT, Paralegal...) never
+     surfaced. Correlating CENTERED vectors matches what stands out
+     for this student relative to their own average against what
+     stands out for the career — acquiescence bias (answering high
+     on everything) cancels out. Euclidean distance stays as the
+     tie-breaker only. */
+  const uVals = DIM_KEYS.map(d=>scores[d]||3);
+  const uMean = uVals.reduce((a,b)=>a+b,0)/uVals.length;
+  const matches = CAREERS.map(c=>{
+    const cVals = DIM_KEYS.map(d=>c.dims[d]);
+    const cMean = cVals.reduce((a,b)=>a+b,0)/cVals.length;
+    let num=0, du=0, dc=0, sq=0;
+    DIM_KEYS.forEach((d,i)=>{
+      const a=uVals[i]-uMean, b=cVals[i]-cMean;
+      num+=a*b; du+=a*a; dc+=b*b;
+      const diff=uVals[i]-cVals[i]; sq+=diff*diff;
+    });
+    const r = (du>1e-9 && dc>1e-9) ? num/Math.sqrt(du*dc) : 0;
+    const pct = Math.max(0, Math.min(100, Math.round(50+50*r)));
+    return {...c, pct, _dist:Math.sqrt(sq)};
+  }).sort((a,b)=> b.pct-a.pct || a._dist-b._dist);
+
+  state.results={scores, matches};
+  state.lastTestDate = new Date().toISOString();
+  persist();
+}
+function topDims(scores,n){ return Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,n).map(e=>e[0]); }
+function whyFit(career, scores){
+  const userTop=topDims(scores,3);
+  const careerTop=Object.entries(career.dims).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]);
+  const overlap=userTop.filter(d=>careerTop.includes(d));
+  const dl = DIMENSIONS;
+  if(overlap.length===0) return null;
+  return overlap.map(d=>tf(dl[d])).join(", ");
+}
+function monthsSince(iso){
+  if(!iso) return 999;
+  const d=new Date(iso);
+  return (Date.now()-d.getTime())/(1000*60*60*24*30);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const app = document.getElementById("app");
+
+function render(){
+  if(!state.loaded) return;
+  document.documentElement.setAttribute("dir", isRTL() ? "rtl" : "ltr");
+  document.documentElement.setAttribute("lang", state.lang);
+  app.innerHTML="";
+  app.appendChild(renderHeader());
+  const main=document.createElement("main");
+  main.appendChild(renderDisclaimer());
+  if(state.screen==="dash") main.appendChild(renderDash());
+  else if(state.screen==="test") main.appendChild(renderTest());
+  else if(state.screen==="results") main.appendChild(renderResults());
+  else if(state.screen==="education") main.appendChild(renderEducation());
+  else if(state.screen==="catalog") main.appendChild(renderCatalog());
+  else if(state.screen==="advisor") main.appendChild(renderAdvisor());
+  app.appendChild(main);
+  if(state.screen==="advisor") scrollAdvisorToBottom();
+}
+
+function renderHeader(){
+  const header=document.createElement("header");
+  const brandWrap=document.createElement("div");
+  brandWrap.className="brand";
+  brandWrap.innerHTML=`
+    <!-- compass needle over river waves — drawn in the Los Rios
+         mark's three blues (#122768 / #215DD6 / #9CCEEB) -->
+    <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <circle cx="20" cy="20" r="17.5" stroke="#122768" stroke-width="2.4" fill="#FFFFFF"/>
+      <path d="M20 6.5 L24.4 19.5 L20 17.5 L15.6 19.5 Z" fill="#215DD6"/>
+      <path d="M9 25.5 q3.7 -3 7.4 0 t7.4 0 t7.4 0" stroke="#122768" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M11.5 30.5 q2.9 -2.4 5.8 0 t5.8 0 t5.8 0" stroke="#9CCEEB" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <div><h1>${t().appName}</h1><p>${t().tagline}</p></div>
+  `;
+  header.appendChild(brandWrap);
+
+  const controls=document.createElement("div");
+  controls.className="top-controls";
+  const sel=document.createElement("select");
+  sel.id="langSel";
+  LANGS.forEach(l=>{ const o=document.createElement("option"); o.value=l; o.textContent=LANG_NAMES[l]; if(l===state.lang) o.selected=true; sel.appendChild(o); });
+  sel.onchange=()=>{ state.lang=sel.value; persist(); render(); };
+  controls.appendChild(sel);
+
+  const nav=document.createElement("nav");
+  const items=[["dash",t().navDash],["test",t().navTest],["results",t().navResults],["education",t().navEdu],["catalog",t().navCatalog],["advisor",t().navAdvisor]];
+  items.forEach(([key,label])=>{
+    const b=document.createElement("button");
+    b.textContent=label;
+    if(state.screen===key) b.className="active";
+    if(key==="results" && !state.results) b.disabled=true;
+    b.onclick=()=>{ state.screen=key; render(); };
+    nav.appendChild(b);
+  });
+  controls.appendChild(nav);
+  header.appendChild(controls);
+  return header;
+}
+
+function renderDisclaimer(){
+  const wrap=document.createElement("div");
+  const d=document.createElement("div");
+  d.className="disclaimer";
+  d.innerHTML=`<span>⚠</span><span>${t().disclaimer}</span>`;
+  wrap.appendChild(d);
+  const ccn=document.createElement("div");
+  ccn.className="ccn-alert";
+  ccn.innerHTML=`<span class="tag">${t().ccnTag}</span><p>${t().ccnText}</p>`;
+  wrap.appendChild(ccn);
+  return wrap;
+}
+
+function renderDash(){
+  const el=document.createElement("div");
+  if(!state.results){
+    el.innerHTML=`
+      <div class="eyebrow">${t().heroEyebrow}</div>
+      <h2 class="title">${t().heroTitle}</h2>
+      <p class="lede">${t().heroLede}</p>
+      <button class="btn-primary" id="startBtn">${t().startBtn}</button>
+      <div class="dim-preview">${DIM_KEYS.map(k=>`<div><b>${tf(DIMENSIONS[k])}</b></div>`).join("")}</div>
+    `;
+    el.querySelector("#startBtn").onclick=()=>{ state.screen="test"; state.qIndex=0; render(); };
+    return el;
+  }
+
+  const {scores, matches}=state.results;
+  const top1 = topDims(scores,1).map(d=>tf(DIMENSIONS[d]))[0];
+  const bestMatch = matches[0];
+  const monthsAgo = monthsSince(state.lastTestDate);
+
+  el.innerHTML=`
+    <div class="eyebrow">${t().dashWelcome}</div>
+    <h2 class="title" style="font-size:28px;">${t().dashWelcome}</h2>
+  `;
+  if(monthsAgo>4){
+    const warn=document.createElement("div");
+    warn.className="disclaimer";
+    warn.style.background="rgba(0,68,124,0.08)"; warn.style.borderColor="rgba(0,68,124,0.3)";
+    warn.innerHTML=`<span>↻</span><span>${t().retakeSuggestion} <button class="btn-ghost" id="retakeBtn2" style="margin-inline-start:10px;">${t().retakeBtn}</button></span>`;
+    el.appendChild(warn);
+  }
+  const grid=document.createElement("div");
+  grid.className="dash-grid";
+  grid.innerHTML=`
+    <div class="stat-card">
+      <div class="lbl">${t().statTopTrait}</div><div class="num">${top1}</div>
+      <div class="lbl" style="margin-top:10px;">${t().statMatch}</div>
+      <div style="font-family:'Libre Baskerville','Times New Roman',serif;font-size:18px;margin-top:2px;">${tf(bestMatch.t)} — ${bestMatch.pct}%</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">${t().statLastTest}</div>
+      <div class="mono" style="font-size:12.5px;color:var(--text-dim);">${state.lastTestDate ? new Date(state.lastTestDate).toLocaleDateString(state.lang) : "—"}</div>
+    </div>
+  `;
+  el.appendChild(grid);
+  const btnRow=document.createElement("div");
+  btnRow.style.display="flex"; btnRow.style.gap="10px"; btnRow.style.flexWrap="wrap";
+  const b1=document.createElement("button"); b1.className="btn-primary"; b1.textContent=t().navResults; b1.onclick=()=>{state.screen="results";render();};
+  const b2=document.createElement("button"); b2.className="btn-ghost"; b2.textContent=t().retakeBtn; b2.onclick=()=>{state.screen="test";state.qIndex=0;state.answers={};state.goal=null;render();};
+  btnRow.appendChild(b1); btnRow.appendChild(b2);
+  el.appendChild(btnRow);
+  if(el.querySelector("#retakeBtn2")) el.querySelector("#retakeBtn2").onclick=()=>{state.screen="test";state.qIndex=0;state.answers={};state.goal=null;render();};
+  return el;
+}
+
+function renderTest(){
+  const el=document.createElement("div");
+  el.className="test-wrap";
+
+  /* Step 0 — educational goal, in plain words, before the 70 questions */
+  if(!state.goal){
+    const back0=document.createElement("button");
+    back0.className="back-link"; back0.textContent=t().pause;
+    back0.onclick=()=>{ state.screen="dash"; render(); };
+    el.appendChild(back0);
+    const card=document.createElement("div");
+    card.innerHTML=`
+      <div class="progress-label mono">${gt().tag} · 0%</div>
+      <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+      <div class="question-card">
+        <div class="q-dim-tag">${gt().tag}</div>
+        <p class="q-text">${gt().title}</p>
+        <p class="section-sub">${gt().hint}</p>
+        <div class="goal-row" id="goalRow"></div>
+      </div>`;
+    el.appendChild(card);
+    const row=card.querySelector("#goalRow");
+    GOAL_KEYS.forEach(k=>{
+      const b=document.createElement("div");
+      b.className="goal-btn";
+      b.innerHTML=`<b>${gt().opts[k].l}</b><span>${gt().opts[k].d}</span>`;
+      b.onclick=()=>{ state.goal=k; persist(); render(); };
+      row.appendChild(b);
+    });
+    return el;
+  }
+
+  const q_i=state.qIndex, dim=Q_DIMS[q_i], text=Q_TEXT[state.lang][q_i];
+  const pct=Math.round((q_i/Q_DIMS.length)*100);
+
+  const back=document.createElement("button");
+  back.className="back-link"; back.textContent=t().pause;
+  back.onclick=()=>{ state.screen="dash"; render(); };
+  el.appendChild(back);
+
+  const rest=document.createElement("div");
+  rest.innerHTML=`
+    <div class="progress-label mono">${t().qProgress(q_i+1, Q_DIMS.length)} · ${pct}%</div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="question-card">
+      <div class="q-dim-tag">${tf(DIMENSIONS[dim])}</div>
+      <p class="q-text">${text}</p>
+      <div class="scale-row" id="scaleRow"></div>
+    </div>
+  `;
+  el.appendChild(rest);
+  const scaleRow=rest.querySelector("#scaleRow");
+  const labels=t().scaleLabels;
+  for(let v=1; v<=5; v++){
+    const b=document.createElement("div");
+    b.className="scale-btn";
+    b.innerHTML=`<span class="scale-num">${v}</span>${labels[v-1]}`;
+    b.onclick=()=>{
+      state.answers[q_i]=v;
+      if(q_i < Q_DIMS.length-1){ state.qIndex++; }
+      else { computeResults(); state.screen="results"; }
+      render();
+    };
+    scaleRow.appendChild(b);
+  }
+  return el;
+}
+
+function radarSVG(scores){
+  const dims=DIM_KEYS; const n=dims.length; const cx=150, cy=150, R=105;
+  const pts=dims.map((d,i)=>{ const a=(Math.PI*2*i/n)-Math.PI/2; const r=R*((scores[d]||3)/5); return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; });
+  const ring=(f)=>dims.map((d,i)=>{ const a=(Math.PI*2*i/n)-Math.PI/2; return [cx+R*f*Math.cos(a), cy+R*f*Math.sin(a)]; }).map(p=>p.join(",")).join(" ");
+  const poly=pts.map(p=>p.join(",")).join(" ");
+  const labels=dims.map((d,i)=>{ const a=(Math.PI*2*i/n)-Math.PI/2; const lr=R+28; const x=cx+lr*Math.cos(a), y=cy+lr*Math.sin(a);
+    return `<text x="${x}" y="${y}" font-size="10" fill="#3E556B" text-anchor="middle" font-family="IBM Plex Mono, monospace">${tf(DIMENSIONS[d])}</text>`; }).join("");
+  return `<svg width="300" height="300" viewBox="0 0 300 300">
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#252D65" stop-opacity="0.30"/><stop offset="100%" stop-color="#215DD6" stop-opacity="0.30"/></linearGradient></defs>
+    <polygon points="${ring(1)}" fill="none" stroke="rgba(20,41,61,0.15)" stroke-width="1"/>
+    <polygon points="${ring(0.66)}" fill="none" stroke="rgba(20,41,61,0.15)" stroke-width="1"/>
+    <polygon points="${ring(0.33)}" fill="none" stroke="rgba(20,41,61,0.15)" stroke-width="1"/>
+    <polygon points="${poly}" fill="url(#rg)" stroke="#252D65" stroke-width="2"/>
+    ${labels}</svg>`;
+}
+
+function renderResults(){
+  const el=document.createElement("div");
+  const {scores, matches}=state.results;
+  const top3=topDims(scores,3).map(d=>tf(DIMENSIONS[d])).join(", ");
+  el.innerHTML=`
+    <div class="eyebrow">${t().resultsEyebrow}</div>
+    <div class="results-header">
+      <div>${radarSVG(scores)}</div>
+      <div class="profile-summary">
+        <h3>${t().resultsHeading(top3)}</h3>
+        <p>${t().resultsIntro}</p>
+        <ul class="traits-list">${Object.entries(scores).sort((a,b)=>b[1]-a[1]).map(([d,v])=>`<li><b>${tf(DIMENSIONS[d])}</b><span>${v.toFixed(1)} / 5</span></li>`).join("")}</ul>
+      </div>
+    </div>
+    <div class="results-share">
+      <button class="btn-ghost" id="emailResultsBtn">${emT().email}</button>
+      <button class="btn-ghost" id="copyResultsBtn">${emT().copy}</button>
+    </div>
+    <h3 class="section-h">${t().matchesHeading}${state.goal?`<span class="goal-chip">${gt().tag}: ${gt().goalChip[state.goal]}</span>`:""}</h3>
+    <p class="section-sub">${t().matchesSub}</p>
+    <p class="ai-methodology">${t().aiMethodNote}</p>
+    <div id="careerList"></div>
+  `;
+  el.querySelector("#emailResultsBtn").onclick=()=>{
+    const body = buildResultsSummary();
+    /* a plain anchor click opens the default mail client without
+       tripping popup blockers (unlike window.open on mailto:) */
+    const m = document.createElement("a");
+    m.href = "mailto:?subject=" + encodeURIComponent(emT().subject) + "&body=" + encodeURIComponent(body);
+    document.body.appendChild(m); m.click(); document.body.removeChild(m);
+  };
+  el.querySelector("#copyResultsBtn").onclick=async()=>{
+    const body = buildResultsSummary();
+    try{ await navigator.clipboard.writeText(body); showToast(emT().copied); }
+    catch(e){
+      const ta=document.createElement("textarea"); ta.value=body; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+      showToast(emT().copied);
+    }
+  };
+  const list=el.querySelector("#careerList");
+  matches.slice(0,6).forEach(c=>{
+    const card=document.createElement("div");
+    card.className="career-card";
+    const aiColor = c.ai>=4 ? "#2E8540" : c.ai===3 ? "#B8860B" : "#C62828";
+    const why = whyFit(c, scores);
+    const badgeClass = c.collegeVerified ? "badge-verified" : "badge-general";
+    const badgeText = c.collegeVerified ? t().verifiedBadge : t().generalBadge;
+    /* major + credential recommendation for the student's goal,
+       from the scraped PROGRAM_REQUIREMENTS — never invented */
+    const rec = recommendPath(c, state.goal);
+    let recHTML="";
+    if(rec && !rec.none){
+      if(rec.classes && rec.site){
+        recHTML=`<div class="rec-path"><b>${gt().recLabel}:</b> ${gt().recClasses} <a data-edu="${rec.site.progName}">${rec.site.progName}</a> · ${COLLEGE_NAMES[rec.site.college]||rec.site.college} — <a data-edu="${rec.site.progName}">${gt().recOpen} →</a></div>`;
+      } else if(rec.cred){
+        const u = (rec.cred.units!==undefined&&rec.cred.units!==null) ? ` <span class="rec-units">· ${rec.cred.units} ${eduT().unitsLabel}</span>` : "";
+        recHTML=`<div class="rec-path"><b>${gt().recLabel}:</b> <a data-edu="${rec.site.progName}">${rec.cred.title}</a>${u} · ${COLLEGE_NAMES[rec.site.college]||rec.site.college}${rec.fallback?` <i>(${gt().recFallback})</i>`:""} — <a data-edu="${rec.site.progName}">${gt().recOpen} →</a></div>`;
+      }
+    }
+    card.innerHTML=`
+      <div class="career-top"><h4>${tf(c.t).name}</h4><div class="match-pct">${c.pct}% ${t().matchLabel}</div></div>
+      <p class="desc">${tf(c.t).desc}</p>
+      ${why?`<p class="desc" style="font-style:italic;color:#5B6478;">${why}</p>`:""}
+      ${recHTML}
+      <div class="career-meta">
+        <span class="ai-dot" style="background:${aiColor};display:inline-block;width:7px;height:7px;border-radius:50%;"></span>
+        <span>${t().aiLabel}: ${c.ai}/5</span>
+        <span class="badge-college ${badgeClass}">${t().collegeLabel}: ${collegeLinksHTML(c.college, c.prog)} · ${badgeText}</span>
+        <span>${t().transferLabel}: ${c.transfer}</span>
+      </div>
+    `;
+    card.querySelectorAll("[data-edu]").forEach(a=>{
+      a.onclick=(e)=>{ e.preventDefault();
+        const name=a.getAttribute("data-edu");
+        state.screen="education"; state.eduSearch=name; state.eduCollege="all"; state.openMajor=name;
+        render(); window.scrollTo(0,0);
+      };
+    });
+    list.appendChild(card);
+  });
+  return el;
+}
+
+function renderEducation(){
+  const el=document.createElement("div");
+  el.innerHTML=`
+    <div class="eyebrow">${t().eduEyebrow}</div>
+    <h2 class="title" style="font-size:27px;">${t().eduTitle}</h2>
+    <p class="lede">${t().eduLede}</p>
+    <p class="ai-methodology">${typeof PROGRAM_REQUIREMENTS!=="undefined" ? eduT().snapshot(PROGRAM_REQUIREMENTS.generated_at.slice(0,10)) : eduT().noData}</p>
+    <div class="catalog-toolbar" id="eduToolbar"></div>
+    <div class="catalog-count" id="eduCount"></div>
+    <div class="major-grid" id="eduGrid" style="grid-template-columns:1fr;"></div>
+  `;
+  const toolbar = el.querySelector("#eduToolbar");
+  const searchInput = document.createElement("input");
+  searchInput.className="catalog-search";
+  searchInput.placeholder=eduT().search;
+  searchInput.value=state.eduSearch;
+  searchInput.oninput=(e)=>{ state.eduSearch=e.target.value; renderEduGrid(); };
+  toolbar.appendChild(searchInput);
+  ["all","ARC","SCC","CRC","FLC"].forEach(c=>{
+    const chip=document.createElement("button");
+    chip.className="college-chip"+(state.eduCollege===c?" active":"");
+    chip.textContent = c==="all" ? t().catalogAllColleges : c;
+    chip.onclick=()=>{ state.eduCollege=c; render(); };
+    toolbar.appendChild(chip);
+  });
+
+  function credentialHTML(cred){
+    const unitsChip = (cred.units!==undefined && cred.units!==null) ? `<span class="degree-chip">${cred.units} ${eduT().unitsLabel}</span>` : "";
+    const typeChip = cred.type ? `<span class="degree-chip">${cred.type}</span>` : "";
+    let rows;
+    if(cred.courses && cred.courses.length){
+      rows = cred.courses.map(c=>{
+        const showUnits = c.units!==undefined && !/\(\s*[\d.]+(\s*-\s*[\d.]+)?\s*\)\s*$/.test(c.title);
+        return `<div class="checkbox-row"><span class="code">${c.code}</span><span>${c.title}${showUnits?` <span style="color:var(--text-faint);">(${c.units})</span>`:""}</span></div>`;
+      }).join("");
+    } else {
+      rows = `<div class="verify-note">${eduT().noCourses}</div>`;
+    }
+    const note = cred.notes ? `<div class="verify-note"><b>${eduT().admission}</b> ${cred.notes}</div>` : "";
+    return `<details class="cred-details">
+      <summary><span class="cred-title">${cred.title}</span> ${typeChip} ${unitsChip}</summary>
+      <div class="course-list">${note}${rows}</div>
+    </details>`;
+  }
+
+  function renderEduGrid(){
+    const grid = el.querySelector("#eduGrid");
+    const countEl = el.querySelector("#eduCount");
+    if(!grid) return;
+    const q = state.eduSearch.trim().toLowerCase();
+    const list = eduIndex().filter(p=>{
+      const matchesSearch = !q || p.name.toLowerCase().includes(q);
+      const matchesCollege = state.eduCollege==="all" || p.sites.some(s=>s.college===state.eduCollege);
+      return matchesSearch && matchesCollege;
+    });
+    countEl.textContent = eduT().count(list.length);
+    grid.innerHTML="";
+    if(!list.length){
+      const none=document.createElement("p");
+      none.className="section-sub";
+      none.textContent=eduT().empty;
+      grid.appendChild(none);
+      return;
+    }
+    list.forEach(p=>{
+      const open = state.openMajor===p.name;
+      const card=document.createElement("div");
+      card.className="major-card"+(open?" open":"");
+      const sites = p.sites.filter(s=>state.eduCollege==="all"||s.college===state.eduCollege);
+      const head=document.createElement("div");
+      head.style.cursor="pointer";
+      head.innerHTML=`<h5 style="margin-bottom:4px;">${p.name}</h5>
+        <div class="college-tag">${p.sites.map(s=>s.college).join(" · ")} — ${eduT().creds(p.sites.reduce((n,s)=>n+s.credentials.length,0))}</div>`;
+      head.onclick=()=>{ state.openMajor = open ? null : p.name; render(); };
+      card.appendChild(head);
+      if(open){
+        const body=document.createElement("div");
+        sites.forEach(site=>{
+          const block=document.createElement("div");
+          block.className="edu-college-block col-"+site.college;
+          block.innerHTML=`<div class="college-tag" style="margin:10px 0 4px;"><b>${COLLEGE_NAMES[site.college]||site.college}</b> · <a href="${site.url}" data-ext="${site.url}" class="college-link">${eduT().source}</a></div>`
+            + site.credentials.map(credentialHTML).join("");
+          body.appendChild(block);
+        });
+        const linkedCareers = CAREERS.filter(c=>c.prog===p.name);
+        if(linkedCareers.length){
+          const cfm = document.createElement("div");
+          cfm.className="careers-for-major";
+          cfm.innerHTML = `<div style="width:100%;font-size:11.5px;color:var(--text-faint);margin:8px 0 4px;">${t().careersForMajor}</div>` +
+            linkedCareers.map(c=>`<span class="chip careers-for-major">${tf(c.t).name}</span>`).join("");
+          body.appendChild(cfm);
+        }
+        card.appendChild(body);
+      }
+      grid.appendChild(card);
+    });
+  }
+  setTimeout(renderEduGrid, 0);
+  return el;
+}
+
+function renderCatalog(){
+  const el=document.createElement("div");
+  el.innerHTML=`
+    <div class="eyebrow">${t().navCatalog}</div>
+    <h2 class="title" style="font-size:27px;">${t().catalogTitle}</h2>
+    <p class="lede">${t().catalogLede}</p>
+    <p class="ai-methodology">${t().aiMethodNote}</p>
+    <p class="ai-methodology">${t().degreeLegend}</p>
+    <div class="catalog-toolbar" id="catalogToolbar"></div>
+    <div class="catalog-count" id="catalogCount"></div>
+    <div class="catalog-grid" id="catalogGrid"></div>
+  `;
+  const toolbar = el.querySelector("#catalogToolbar");
+  const searchInput = document.createElement("input");
+  searchInput.className="catalog-search";
+  searchInput.placeholder=t().catalogSearch;
+  searchInput.value=state.catalogSearch;
+  searchInput.oninput=(e)=>{ state.catalogSearch=e.target.value; renderCatalogGrid(); };
+  toolbar.appendChild(searchInput);
+  ["all","ARC","SCC","CRC","FLC"].forEach(c=>{
+    const chip=document.createElement("button");
+    chip.className="college-chip"+(state.catalogCollege===c?" active":"");
+    chip.textContent = c==="all" ? t().catalogAllColleges : (COLLEGE_NAMES[c]||c);
+    chip.onclick=()=>{ state.catalogCollege=c; render(); };
+    toolbar.appendChild(chip);
+  });
+
+  function renderCatalogGrid(){
+    const grid = document.getElementById("catalogGrid");
+    const countEl = document.getElementById("catalogCount");
+    if(!grid) return;
+    const q = state.catalogSearch.trim().toLowerCase();
+    const filtered = ALL_PROGRAMS.filter(p=>{
+      const matchesSearch = !q || p.name.toLowerCase().includes(q);
+      const matchesCollege = state.catalogCollege==="all" || p.colleges.includes(state.catalogCollege);
+      return matchesSearch && matchesCollege;
+    });
+    countEl.textContent = t().catalogCount(filtered.length);
+    grid.innerHTML="";
+    filtered.forEach(p=>{
+      const card=document.createElement("div");
+      card.className="catalog-card";
+      const aiColor = p.ai>=4 ? "#2E8540" : p.ai===3 ? "#B8860B" : "#C62828";
+      let degreeHtml;
+      if(p.degreeTypes===null){
+        degreeHtml = `<span class="degree-chip na">${t().degreeUnknown}</span>`;
+      } else if(p.degreeTypes.length===0){
+        degreeHtml = `<span class="degree-chip na">${t().degreeNone}</span>`;
+      } else {
+        degreeHtml = p.degreeTypes.map(d=>`<span class="degree-chip">${d}</span>`).join("") +
+          (p.degreeApprox ? `<span class="degree-approx-note">${t().degreeApprox}</span>` : "");
+      }
+      card.innerHTML=`
+        <h6>${p.name}</h6>
+        <div class="row">
+          <div class="colleges">${p.colleges.map(c=>{const u=programURL(c, p.name);return `<a class="college-dot col-${c}" href="${u}" data-ext="${u}" title="${p.name} — ${COLLEGE_NAMES[c]||c}">${c}</a>`;}).join("")}</div>
+          <span class="ai-pill" style="background:${aiColor}22;color:${aiColor};">AI ${p.ai}/5</span>
+        </div>
+        <div>${degreeHtml}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+  setTimeout(renderCatalogGrid, 0);
+  return el;
+}
+
+function buildAdvisorSystemPrompt(){
+  const langName = LANG_NAMES[state.lang];
+  let ctx = `You are an AI education & career advisor for students at the Los Rios Community College District (American River College, Sacramento City College, Cosumnes River College, Folsom Lake College) in California. Respond in ${langName} (the student's chosen app language) unless they write in a different language, in which case follow their language. Be concrete and practical, no fluff or generic motivational language. If unsure about a current requirement, say so honestly and suggest checking assist.org or a counselor — never invent numbers. Note: Los Rios is mid-transition to a new statewide Common Course Numbering (CCN) system as of Fall 2026, so some course numbers are actively changing.
+
+The student can attach a transcript, unofficial transcript screenshot, or a photo/PDF of their completed course list. When they do:
+- Read every course, grade, and unit value you can see in the image/document.
+- California community college Associate degrees generally require a minimum of 60 semester units (mix of major/GE/elective, varies by degree — this is a general baseline, not exact per program).
+- Certificates vary widely in unit count (often 12-30+ units) — do not assume 60 units applies to certificates.
+- Add up the units you can clearly read, tell the student your running total, and say clearly which courses you weren't able to read confidently (image quality, cropped, handwriting) rather than guessing at unclear ones.
+- Estimate roughly how many units/credits likely remain toward an AA/AS (or the specific major discussed), but ALWAYS caveat that this is your own estimate from an unofficial document, not a substitute for an official Degree Audit / counselor evaluation, since general education patterns and specific major requirements affect the real number.
+- If a course name/number looks like it's already been renamed under the CCN transition, mention that too.
+
+AI-RESILIENCE COACHING — a core part of your job is helping the student become an AI-resilient professional:
+- Recommend skill STACKS, not single skills: pair a hands-on / licensed / human-facing core (patient care, skilled trades, teaching, emergency response) with data & AI literacy. Combinations are much harder to automate than either part alone.
+- Push AI-tool fluency inside their own field: learning to direct, verify, and apply AI tools (writing effective prompts, checking outputs for errors, using the domain's software) — professionals who supervise AI outcompete those who compete against it.
+- Point out the durable human components of any career they ask about: physical work in unpredictable environments, real-time judgment with safety or legal liability, licensure and regulatory gatekeeping, and trust/relationship work.
+- Be honest where routine exposure is high (data entry, routine bookkeeping, template writing, records processing) and suggest adjacent, more resilient specializations reachable from the same Los Rios major (e.g. accounting -> forensic accounting or advisory; writing -> editing, verification, communications strategy; office admin -> compliance or HR with people-facing duties).
+- Suggest concrete Los Rios moves: a certificate that adds an applied or tech layer to their major, Work Experience (internship) courses, and always verifying the plan with a counselor.
+- The app's AI-resilience ratings (1-5) are directional estimates cross-checked in July 2026 against the U.S. Department of Labor's O*NET \"Degree of Automation\" data — treat them as guidance, not certified fact, and say so if asked.`;
+  if(state.results){
+    const {scores, matches}=state.results;
+    const topD=topDims(scores,3).map(d=>tf(DIMENSIONS[d])).join(", ");
+    const topC=matches.slice(0,3).map(c=>tf(c.t).name).join(", ");
+    ctx += ` Student's test profile — strongest traits: ${topD}. Top career matches: ${topC}.`;
+  }
+  if(state.goal){
+    const goalNames={classes:"take just a class or two for a specific skill", certificate:"earn a short job-focused certificate", degree:"complete a full associate degree (A.A./A.S.)", transfer:"transfer to a UC/CSU university for a bachelor's"};
+    ctx += ` Student's stated educational goal: ${goalNames[state.goal]||state.goal}. Tailor course and credential advice to that goal.`;
+  }
+  if(typeof PROGRAM_REQUIREMENTS !== "undefined"){
+    const nProg = Object.values(PROGRAM_REQUIREMENTS.colleges).reduce((s,c)=>s+c.programs.length,0);
+    ctx += ` Reference: the app's Education tab contains a snapshot (${PROGRAM_REQUIREMENTS.generated_at.slice(0,10)}) of degree/certificate requirements scraped from ${nProg} official Los Rios program pages across ARC/SCC/CRC/FLC, with exact course codes, units, and links to each source page. When the student asks about a specific major's requirements, point them to the Education tab for the exact course list and remind them it is a snapshot to verify with a counselor.`;
+  }
+  return ctx;
+}
+
+async function sendAdvisorMessage(text){
+  let content;
+  const att = state.pendingAttachment;
+  if(att){
+    content = [
+      { type: att.kind, source: { type:"base64", media_type: att.mediaType, data: att.base64 } },
+      { type:"text", text: text || (state.lang==="ru" ? "Проанализируй, пожалуйста, этот документ." : "Please analyze this document.") }
+    ];
+  } else {
+    content = text;
+  }
+  state.advisorMessages.push({role:"user", content, attachmentName: att ? att.name : null});
+  state.pendingAttachment = null;
+  state.advisorLoading=true; persist(); render();
+  try{
+    const apiMessages = state.advisorMessages.map(m=>({role:m.role, content:m.content}));
+    /* On claude.ai the artifact host proxies and authenticates this call.
+       Anywhere else (e.g. GitHub Pages) the student supplies their own key,
+       stored only in this browser; the CORS opt-in header below is what
+       Anthropic requires for direct browser access. */
+    const headers = {"Content-Type":"application/json"};
+    if(state.apiKey){
+      headers["x-api-key"] = state.apiKey;
+      headers["anthropic-version"] = "2023-06-01";
+      headers["anthropic-dangerous-direct-browser-access"] = "true";
+    }
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers,
+      body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1500, system: buildAdvisorSystemPrompt(), messages: apiMessages })
+    });
+    if(!response.ok){
+      let et = "";
+      try{ const err = await response.json(); et = (err.error&&err.error.type)||""; }catch(e){}
+      const msg = (response.status===401||response.status===403) ? advT().errAuth
+        : response.status===429 ? advT().errRate
+        : (response.status===529||et==="overloaded_error") ? advT().errOverloaded
+        : advT().errGeneric;
+      state.advisorMessages.push({role:"assistant", content: msg});
+    } else {
+      const data = await response.json();
+      const textBlocks = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text);
+      const reply = textBlocks.join("\n") || "…";
+      state.advisorMessages.push({role:"assistant", content:reply});
+    }
+  }catch(e){
+    state.advisorMessages.push({role:"assistant", content: advT().errNet});
+  }
+  state.advisorLoading=false; persist(); render();
+}
+
+function handleAdvisorFile(file){
+  const MAX_BYTES = 15*1024*1024; // 15MB safety cap
+  if(file.size > MAX_BYTES){
+    alert(t().attachTooLarge);
+    return;
+  }
+  const isPdf = file.type === "application/pdf";
+  const isImage = file.type.startsWith("image/");
+  if(!isPdf && !isImage){
+    alert(t().attachUnsupported);
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const base64 = reader.result.split(",")[1];
+    state.pendingAttachment = { name:file.name, mediaType:file.type, base64, kind: isPdf ? "document" : "image" };
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderAdvisor(){
+  const el=document.createElement("div");
+  el.innerHTML=`
+    <div class="eyebrow">${t().advisorEyebrow}</div>
+    <h2 class="title" style="font-size:27px;">${t().advisorTitle}</h2>
+    <p class="lede">${state.results ? t().advisorLede : ""} ${t().advisorAttachHint}</p>
+    <div class="advisor-wrap">
+      <div class="advisor-messages" id="advisorMsgs"></div>
+      <div id="attachmentPreview"></div>
+      <div class="advisor-input-row">
+        <input type="file" id="advisorFile" accept="image/*,.pdf" style="display:none;">
+        <button id="advisorAttachBtn" class="attach-btn" type="button" title="${t().attachFile}">📎</button>
+        <button id="advisorKeyBtn" class="attach-btn" type="button" title="${advT().keyTitle}">🔑</button>
+        <textarea id="advisorInput" rows="2" placeholder="${t().advisorPlaceholder}"></textarea>
+        <button id="advisorSend">${t().advisorSend}</button>
+      </div>
+    </div>
+  `;
+  const msgsBox=el.querySelector("#advisorMsgs");
+  if(state.advisorMessages.length===0){
+    msgsBox.innerHTML=`<div class="advisor-empty">${t().advisorEmpty}</div>`;
+  } else {
+    state.advisorMessages.forEach(m=>{
+      const d=document.createElement("div");
+      d.className="msg "+(m.role==="user"?"user":"bot");
+      let textOut = "";
+      if(Array.isArray(m.content)){
+        const tb = m.content.find(b=>b.type==="text");
+        textOut = tb ? tb.text : "";
+      } else {
+        textOut = m.content;
+      }
+      d.textContent = textOut;
+      if(m.attachmentName){
+        const chip=document.createElement("div");
+        chip.className="attachment-chip-inline";
+        chip.textContent = "📎 "+m.attachmentName;
+        d.appendChild(chip);
+      }
+      msgsBox.appendChild(d);
+    });
+    if(state.advisorLoading){
+      const d=document.createElement("div"); d.className="msg bot loading"; d.textContent="…"; msgsBox.appendChild(d);
+    }
+  }
+
+  const previewBox = el.querySelector("#attachmentPreview");
+  if(state.pendingAttachment){
+    previewBox.innerHTML = `<div class="attachment-chip">📎 ${state.pendingAttachment.name} <button id="removeAttach" type="button">✕</button></div>`;
+    previewBox.querySelector("#removeAttach").onclick=()=>{ state.pendingAttachment=null; render(); };
+  }
+
+  const fileInput = el.querySelector("#advisorFile");
+  el.querySelector("#advisorAttachBtn").onclick=()=>fileInput.click();
+  el.querySelector("#advisorKeyBtn").onclick=()=>{
+    const cur = state.apiKey || "";
+    const v = window.prompt(advT().keyPrompt, cur);
+    if(v===null) return;
+    state.apiKey = v.trim() || null;
+    persist();
+    showToast(state.apiKey ? advT().keySaved : advT().keyRemoved);
+  };
+  fileInput.onchange=(e)=>{ if(e.target.files[0]) handleAdvisorFile(e.target.files[0]); fileInput.value=""; };
+
+  const input=el.querySelector("#advisorInput");
+  const send=()=>{
+    const val=input.value.trim();
+    if((!val && !state.pendingAttachment) || state.advisorLoading) return;
+    input.value="";
+    sendAdvisorMessage(val);
+  };
+  el.querySelector("#advisorSend").onclick=send;
+  input.addEventListener("keydown",(e)=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
+  return el;
+}
+function scrollAdvisorToBottom(){ const box=document.getElementById("advisorMsgs"); if(box) box.scrollTop=box.scrollHeight; }
+
+loadPersisted();
+</script>
+</body>
+</html>
