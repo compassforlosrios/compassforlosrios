@@ -212,6 +212,7 @@ h3.section-h{font-family:'Libre Baskerville','Times New Roman',serif;font-size:2
 .cred-details summary{cursor:pointer;padding:9px 0;font-size:13px;font-weight:600;list-style-position:inside;}
 .cred-details summary .cred-title{margin-inline-end:4px;}
 .cred-details[open]{padding-bottom:10px;}
+.course-group{font-weight:700;font-size:12px;color:var(--coral);text-transform:uppercase;letter-spacing:0.04em;margin-top:12px;padding:5px 0 3px;border-bottom:1px solid var(--border);}
 .edu-college-block{margin-top:6px;}
 .checkbox-row input{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;}
 .checkbox-row.done label{color:var(--ok);text-decoration:line-through;opacity:0.7;}
@@ -1696,6 +1697,7 @@ function renderEducation(){
     let rows;
     if(cred.courses && cred.courses.length){
       rows = cred.courses.map(c=>{
+        if(c.header) return `<div class="course-group">${c.header}</div>`;
         const showUnits = c.units!==undefined && !/\(\s*[\d.]+(\s*-\s*[\d.]+)?\s*\)\s*$/.test(c.title);
         return `<div class="checkbox-row"><span class="code">${c.code}</span><span>${c.title}${showUnits?` <span style="color:var(--text-faint);">(${c.units})</span>`:""}</span></div>`;
       }).join("");
