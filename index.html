@@ -230,6 +230,8 @@ h3.section-h{font-family:'Libre Baskerville','Times New Roman',serif;font-size:2
 .cred-details summary{cursor:pointer;padding:9px 0;font-size:13px;font-weight:600;list-style-position:inside;}
 .cred-details summary .cred-title{margin-inline-end:4px;}
 .cred-details[open]{padding-bottom:10px;}
+.pick-instr{display:block;color:#8A2E12;background:#FCF8E3;border-radius:4px;padding:2px 8px;margin-bottom:3px;font-size:12px;text-transform:none;letter-spacing:0;}
+.hdr-orig{opacity:.85;}
 .course-group{font-weight:700;font-size:12px;color:var(--coral);text-transform:uppercase;letter-spacing:0.04em;margin-top:12px;padding:5px 0 3px;border-bottom:1px solid var(--border);}
 .edu-college-block{margin-top:6px;}
 .checkbox-row input{width:16px;height:16px;accent-color:var(--teal);cursor:pointer;}
@@ -878,31 +880,31 @@ function collegeCodesFromField(str){
    EDU_UI — strings for the scraped-requirements Education section
    ============================================================ */
 const EDU_UI = {
-ru:{search:"Найти программу (например, Nursing)...", count:(n)=>`${n} программ`, creds:(n)=>`${n} ${n===1?"квалификация":n<5?"квалификации":"квалификаций"}`,
+ru:{pickMin:(n)=>`⚠ Выбери из нижепредложенных курсов минимум на ${n} юнитов`, pickOne:"⚠ Выбери ОДИН курс из группы ниже", search:"Найти программу (например, Nursing)...", count:(n)=>`${n} программ`, creds:(n)=>`${n} ${n===1?"квалификация":n<5?"квалификации":"квалификаций"}`,
   snapshot:(d)=>`Снимок требований с официальных страниц колледжей (собрано ${d}). Данные не обновляются в реальном времени — перед записью и подачей петиций сверяйся с counselor'ом и официальной страницей программы (ссылки ниже).`,
   source:"Официальная страница программы →", unitsLabel:"юнитов", coursesLabel:"Курсы",
   noCourses:"Список курсов не опубликован на странице — смотри официальную страницу программы.",
   admission:"Приём в программу:", noData:"Файл данных (data.js) не загрузился — раздел временно недоступен.",
   empty:"Ничего не найдено — попробуй другое название (поиск на английском, как в каталоге)."},
-en:{search:"Search a program (e.g. Nursing)...", count:(n)=>`${n} programs`, creds:(n)=>`${n} credential${n===1?"":"s"}`,
+en:{pickMin:(n)=>`⚠ Pick at least ${n} units from the list below`, pickOne:"⚠ Pick ONE course from the group below", search:"Search a program (e.g. Nursing)...", count:(n)=>`${n} programs`, creds:(n)=>`${n} credential${n===1?"":"s"}`,
   snapshot:(d)=>`Snapshot of requirements from the colleges' official program pages (collected ${d}). Not synced in real time — verify with a counselor and the official program page (linked below) before registering or filing petitions.`,
   source:"Official program page →", unitsLabel:"units", coursesLabel:"Courses",
   noCourses:"No course list published on the page — see the official program page.",
   admission:"Program admission:", noData:"The data file (data.js) failed to load — this section is temporarily unavailable.",
   empty:"Nothing found — try a different name (search in English, as in the catalog)."},
-es:{search:"Buscar un programa (p. ej. Nursing)...", count:(n)=>`${n} programas`, creds:(n)=>`${n} ${n===1?"credencial":"credenciales"}`,
+es:{pickMin:(n)=>`⚠ Elige al menos ${n} unidades de la lista de abajo`, pickOne:"⚠ Elige UN curso del grupo de abajo", search:"Buscar un programa (p. ej. Nursing)...", count:(n)=>`${n} programas`, creds:(n)=>`${n} ${n===1?"credencial":"credenciales"}`,
   snapshot:(d)=>`Captura de los requisitos desde las páginas oficiales de los colegios (recopilada el ${d}). No se sincroniza en tiempo real — verifica con un consejero y la página oficial del programa (enlaces abajo) antes de inscribirte o presentar peticiones.`,
   source:"Página oficial del programa →", unitsLabel:"unidades", coursesLabel:"Cursos",
   noCourses:"La página no publica la lista de cursos — consulta la página oficial del programa.",
   admission:"Admisión al programa:", noData:"El archivo de datos (data.js) no se cargó — esta sección no está disponible temporalmente.",
   empty:"No se encontró nada — prueba otro nombre (busca en inglés, como en el catálogo)."},
-ar:{search:"ابحثي عن برنامج (مثل Nursing)...", count:(n)=>`${n} برنامجاً`, creds:(n)=>`${n} ${n===1?"مؤهل":"مؤهلات"}`,
+ar:{pickMin:(n)=>`⚠ اختاري ما لا يقل عن ${n} وحدة من القائمة أدناه`, pickOne:"⚠ اختاري مقرراً واحداً من المجموعة أدناه", search:"ابحثي عن برنامج (مثل Nursing)...", count:(n)=>`${n} برنامجاً`, creds:(n)=>`${n} ${n===1?"مؤهل":"مؤهلات"}`,
   snapshot:(d)=>`لقطة من المتطلبات مأخوذة من الصفحات الرسمية للكليات (جُمعت في ${d}). لا تتحدث آنياً — تحققي مع المستشارة ومن الصفحة الرسمية للبرنامج (الروابط أدناه) قبل التسجيل أو تقديم الطلبات.`,
   source:"الصفحة الرسمية للبرنامج ←", unitsLabel:"وحدة", coursesLabel:"المقررات",
   noCourses:"قائمة المقررات غير منشورة على الصفحة — راجعي الصفحة الرسمية للبرنامج.",
   admission:"القبول في البرنامج:", noData:"تعذّر تحميل ملف البيانات (data.js) — هذا القسم غير متاح مؤقتاً.",
   empty:"لا توجد نتائج — جرّبي اسماً آخر (البحث بالإنجليزية كما في الكتالوج)."},
-fa:{search:"جستجوی برنامه (مثلاً Nursing)...", count:(n)=>`${n} برنامه`, creds:(n)=>`${n} مدرک`,
+fa:{pickMin:(n)=>`⚠ دست‌کم ${n} واحد از فهرست زیر انتخاب کن`, pickOne:"⚠ یک درس از گروه زیر انتخاب کن", search:"جستجوی برنامه (مثلاً Nursing)...", count:(n)=>`${n} برنامه`, creds:(n)=>`${n} مدرک`,
   snapshot:(d)=>`تصویری از الزامات از صفحات رسمی کالج‌ها (جمع‌آوری ${d}). به‌صورت زنده به‌روزرسانی نمی‌شود — پیش از ثبت‌نام یا ارسال درخواست با مشاور و صفحه رسمی برنامه (پیوندها در پایین) بررسی کن.`,
   source:"صفحه رسمی برنامه ←", unitsLabel:"واحد", coursesLabel:"دروس",
   noCourses:"فهرست دروس در صفحه منتشر نشده — صفحه رسمی برنامه را ببین.",
@@ -917,7 +919,7 @@ function eduT(){ return EDU_UI[state.lang] || EDU_UI.en; }
    classes / certificate / associate degree / transfer degree)
    is recommended next to each career match.
    ============================================================ */
-const GOAL_KEYS = ["classes","certificate","degree","transfer"];
+const GOAL_KEYS = ["classes","certificate","degree","transfer","cert_assoc","cert_assoc_transfer"];
 const GOAL_UI = {
 en:{prev:"← Change previous answer", tag:"Your goal", title:"One quick question first: what do you want to get out of college?", hint:"Pick the closest one — you can retake the test anytime.",
   opts:{classes:{l:"Just a class or two",d:"Pick up a specific skill without enrolling in a full program"},
@@ -960,6 +962,16 @@ fa:{prev:"→ تغییر پاسخ قبلی", tag:"هدف تو", title:"اول ی
   recFallback:"نزدیک‌ترین گزینه منتشرشده — گزینه دقیق برای هدف تو ندارد، صفحه برنامه را بررسی کن",
   goalChip:{classes:"یکی دو درس",certificate:"گواهینامه",degree:"مدرک کاردانی",transfer:"انتقال به دانشگاه"}},
 };
+(function(){
+  /* combined-path goal options */
+  const EXT={
+  ru:{o:{cert_assoc:{l:"Сертификат + associate",d:"Начать с сертификата, поработать помощником и добрать до A.A./A.S."},cert_assoc_transfer:{l:"Сертификат + associate + перевод",d:"Полная лестница: сертификат → опыт → A.A./A.S. → университет"}},c:{cert_assoc:"сертификат + associate",cert_assoc_transfer:"полная лестница до бакалавра"}},
+  en:{o:{cert_assoc:{l:"Certificate + associate",d:"Start with a certificate, work as a helper, then finish the A.A./A.S."},cert_assoc_transfer:{l:"Certificate + associate + transfer",d:"The full ladder: certificate → experience → A.A./A.S. → university"}},c:{cert_assoc:"certificate + associate",cert_assoc_transfer:"full ladder to a bachelor's"}},
+  es:{o:{cert_assoc:{l:"Certificado + asociado",d:"Empezar con un certificado, trabajar de ayudante y terminar el A.A./A.S."},cert_assoc_transfer:{l:"Certificado + asociado + transferencia",d:"La escalera completa: certificado → experiencia → A.A./A.S. → universidad"}},c:{cert_assoc:"certificado + asociado",cert_assoc_transfer:"escalera completa"}},
+  ar:{o:{cert_assoc:{l:"شهادة + زمالة",d:"ابدئي بشهادة واعملي مساعدة ثم أكملي درجة الزمالة"},cert_assoc_transfer:{l:"شهادة + زمالة + تحويل",d:"السلّم الكامل: شهادة ← خبرة ← زمالة ← جامعة"}},c:{cert_assoc:"شهادة + زمالة",cert_assoc_transfer:"السلّم الكامل"}},
+  fa:{o:{cert_assoc:{l:"گواهینامه + کاردانی",d:"با گواهینامه شروع کن، کمک‌کار شو و کاردانی را کامل کن"},cert_assoc_transfer:{l:"گواهینامه + کاردانی + انتقال",d:"نردبان کامل: گواهینامه ← تجربه ← کاردانی ← دانشگاه"}},c:{cert_assoc:"گواهینامه + کاردانی",cert_assoc_transfer:"نردبان کامل"}}};
+  Object.keys(EXT).forEach(lg=>{ Object.assign(GOAL_UI[lg].opts, EXT[lg].o); Object.assign(GOAL_UI[lg].goalChip, EXT[lg].c); });
+})();
 function gt(){ return GOAL_UI[state.lang] || GOAL_UI.en; }
 
 /* Advisor connection strings (the advisor calls the Claude API directly
@@ -1164,7 +1176,8 @@ const PROG_PAGE_ALIASES = {"Public Health":"Health Education"};
    credential (flagged) so we never invent one. */
 function recommendPath(career, goal){
   if(typeof PROGRAM_REQUIREMENTS==="undefined" || !goal) return null;
-  if(career.grad) goal="transfer";  // MD/JD-level careers go through transfer, whatever the test goal
+  if(career.grad) goal="transfer";
+  if(goal==="cert_assoc"||goal==="cert_assoc_transfer") goal="certificate";  // combined paths start at the certificate; the ladder block shows the rest  // MD/JD-level careers go through transfer, whatever the test goal
   const target = PROG_PAGE_ALIASES[career.prog] || career.prog;
   /* exact page-name match wins (primary prog, then the career's extra
      progs); substring match ("Nursing" -> "Nursing and Allied Health")
@@ -1938,7 +1951,12 @@ function renderEducation(){
     let rows;
     if(cred.courses && cred.courses.length){
       rows = cred.courses.map(c=>{
-        if(c.header) return `<div class="course-group">${c.header}</div>`;
+        if(c.header){
+          const mMin = c.header.match(/minimum of ([\d.]+) unit/i);
+          const mOne = c.header.match(/select one/i);
+          const instr = mMin ? eduT().pickMin(mMin[1]) : (mOne ? eduT().pickOne : "");
+          return `<div class="course-group">${instr?`<span class="pick-instr">${instr}</span> `:""}<span class="hdr-orig">${c.header}</span></div>`;
+        }
         const showUnits = c.units!==undefined && !/\(\s*[\d.]+(\s*-\s*[\d.]+)?\s*\)\s*$/.test(c.title);
         return `<div class="checkbox-row"><span class="code">${c.code}</span><span>${c.title}${showUnits?` <span style="color:var(--text-faint);">(${c.units})</span>`:""}</span></div>`;
       }).join("");
